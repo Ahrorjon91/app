@@ -1,0 +1,8 @@
+{
+  "name": "AI Engineer Academy",
+  "description": "Портал обучения AI Engineer Academy: 24 практических модуля, лекции, интерактивные лаборатории, квизы и домашние задания.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

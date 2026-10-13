@@ -1,0 +1,29 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # 1. Forward all API calls to Node.js server running on port 3000 via PM2
+  RewriteRule ^api/(.*)$ http://127.0.0.1:3000/api/$1 [P,L]
+  RewriteRule ^api$ http://127.0.0.1:3000/api/ [P,L]
+
+  # 2. Forward uploads to Node.js server
+  RewriteRule ^uploads/(.*)$ http://127.0.0.1:3000/uploads/$1 [P,L]
+
+  # 3. Pass all existing files and directories directly
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # 4. Fallback to index.html for Single Page Application
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+<IfModule mod_proxy.c>
+  ProxyRequests Off
+  ProxyPreserveHost On
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set Access-Control-Allow-Origin "*"
+  Header always set Access-Control-Allow-Methods "GET, POST, OPTIONS, PUT, DELETE"
+  Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+</IfModule>

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="mbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="50%" stop-color="#311042"/>
+      <stop offset="100%" stop-color="#7e22ce"/>
+    </linearGradient>
+    <linearGradient id="mring" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" rx="80" fill="url(#mbg)"/>
+  <circle cx="200" cy="140" r="75" fill="#a855f7" opacity="0.25"/>
+  <!-- Glasses / Mentor face styling -->
+  <circle cx="200" cy="140" r="58" fill="#f8fafc"/>
+  <path d="M190 100 a30 25 0 0 0 20 0 c20 5 30 20 30 35 h-80 c0 -15 10 -30 30 -35 z" fill="#1e1b4b"/>
+  <!-- Headset -->
+  <path d="M130 145 c0 -45 30 -65 70 -65 s70 20 70 65" fill="none" stroke="#ec4899" stroke-width="8" stroke-linecap="round"/>
+  <rect x="122" y="135" width="16" height="30" rx="8" fill="#a855f7"/>
+  <rect x="262" y="135" width="16" height="30" rx="8" fill="#a855f7"/>
+  <path d="M130 160 c20 25 40 25 50 25" fill="none" stroke="#ec4899" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="182" cy="185" r="6" fill="#ec4899"/>
+  <!-- Suit / Body -->
+  <path d="M90 350 c0 -65 50 -85 110 -85 s110 20 110 85 v10 h-220 z" fill="url(#mring)"/>
+  <circle cx="200" cy="200" r="190" fill="none" stroke="url(#mring)" stroke-width="8" opacity="0.6"/>
+</svg>
