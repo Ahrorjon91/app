@@ -8,6 +8,7 @@ interface AcademicBadgeIconProps {
   className?: string;
   unlocked?: boolean;
   image?: string;
+  level?: number;
   onClick?: () => void;
 }
 

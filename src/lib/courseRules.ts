@@ -43,8 +43,31 @@ export const COURSE_RULES = {
   },
 
   // Helper for dynamic Test / Minitest EXP calculation
-  // +100 EXP (10/10 без ошибок), +75 EXP (1–3 ошибки), +50 EXP (4 ошибки). При >4 ошибках тест блокируется (0 EXP).
-  calculateTestExp(scorePct: number, correctCount?: number, totalQuestions?: number): number {
+  calculateTestExp(
+    scorePct: number,
+    passedOrCorrectCount?: boolean | number,
+    isFinalExamOrTotalQuestions?: boolean | number,
+    explicitCorrectCount?: number,
+    explicitTotalQuestions?: number
+  ): number {
+    let correctCount: number | undefined;
+    let totalQuestions: number | undefined;
+    let isFinalExam = false;
+
+    if (typeof passedOrCorrectCount === 'boolean') {
+      if (!passedOrCorrectCount) return 0;
+      isFinalExam = Boolean(isFinalExamOrTotalQuestions);
+      correctCount = explicitCorrectCount;
+      totalQuestions = explicitTotalQuestions;
+    } else {
+      correctCount = passedOrCorrectCount;
+      totalQuestions = typeof isFinalExamOrTotalQuestions === 'number' ? isFinalExamOrTotalQuestions : undefined;
+    }
+
+    if (isFinalExam) {
+      return scorePct >= 85 ? 500 : 0;
+    }
+
     const totalQ = totalQuestions && totalQuestions > 0 ? totalQuestions : 10;
     const correct = correctCount !== undefined ? correctCount : Math.round((scorePct / 100) * totalQ);
     const rawMistakes = Math.max(0, totalQ - correct);

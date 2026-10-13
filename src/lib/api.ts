@@ -267,14 +267,23 @@ export async function apiRequest<T = any>(
         const endpointPath = buildEndpointPath(activeBasePath);
         let response: Response;
 
-        // Retrieve active auth profile headers if available
+        // Retrieve active auth profile and cryptographic session token
         const authHeaders: Record<string, string> = {};
         try {
+          const storedToken = typeof window !== 'undefined' ? localStorage.getItem('devops_auth_token') : null;
           const rawProfile = typeof window !== 'undefined' ? localStorage.getItem('devops_auth_profile') : null;
+          let activeToken = storedToken;
           if (rawProfile) {
             const p = JSON.parse(rawProfile);
+            if (!activeToken && (p.sessionToken || p.token)) {
+              activeToken = p.sessionToken || p.token;
+            }
             if (p.email) authHeaders['X-User-Email'] = p.email;
             if (p.role) authHeaders['X-User-Role'] = p.role;
+          }
+          if (activeToken) {
+            authHeaders['Authorization'] = `Bearer ${activeToken}`;
+            authHeaders['X-Session-Token'] = activeToken;
           }
         } catch {}
 

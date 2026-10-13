@@ -252,7 +252,6 @@ const INITIAL_USER_ACCOUNTS: UserAccount[] = [
     id: 'ADM-2026-0001',
     name: 'Administrator',
     email: 'admin@devopspro.tech',
-    password: 'admin',
     role: 'admin',
     registeredAt: '2026-01-01',
     unlockedLessonsCount: 24,
@@ -271,7 +270,6 @@ const INITIAL_USER_ACCOUNTS: UserAccount[] = [
     id: 'USR-STU-01',
     name: 'John Smith',
     email: 'student@devopspro.tech',
-    password: '123456789',
     role: 'student',
     registeredAt: '2026-08-01',
     unlockedLessonsCount: 1,
@@ -290,7 +288,6 @@ const INITIAL_USER_ACCOUNTS: UserAccount[] = [
     id: 'USR-STU-02',
     name: 'Mullojon Rustamov',
     email: 'mullojon@devopspro.tech',
-    password: '123456789',
     role: 'student',
     registeredAt: '2026-08-01',
     unlockedLessonsCount: 1,
@@ -378,6 +375,11 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   const [labs, setLabs] = useState<LabData[]>(() => {
     try {
+      const savedAuth = localStorage.getItem('devops_auth_profile');
+      const authObj = savedAuth ? JSON.parse(savedAuth) : null;
+      if (authObj?.role === 'admin') {
+        return INITIAL_LABS;
+      }
       const saved = localStorage.getItem('devops_labs');
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -847,6 +849,8 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             Array.isArray(snap.students))
       );
 
+      let myQuizzes: QuizSubmissionResult[] = [];
+
       if (hasSnapshotArrays) {
         const byHwKey = new Map<string, HomeworkSubmission>();
         hwList.forEach((h: any) => {
@@ -984,7 +988,7 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         const activeEmailClean = (profile.email || '').toLowerCase().trim();
         const activeIdClean = profile.id || '';
-        const myQuizzes = mappedQuizzesArr.filter(
+        myQuizzes = mappedQuizzesArr.filter(
           (q) =>
             (q.studentEmail && q.studentEmail.toLowerCase().trim() === activeEmailClean) ||
             (activeIdClean && q.studentId === activeIdClean)
@@ -1233,7 +1237,8 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         profile.email,
         labSubmissions as any,
         homeworkSubmissions,
-        quizSubmissions
+        quizSubmissions,
+        profile.role
       );
       return calculateXpBreakdown(ledger, lessons);
     } catch {
@@ -1250,7 +1255,7 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         lessonItems: []
       };
     }
-  }, [profile.id, profile.email, lessons, readSections, labs, testScores, badges, labSubmissions, homeworkSubmissions, quizSubmissions]);
+  }, [profile.id, profile.email, profile.role, lessons, readSections, labs, testScores, badges, labSubmissions, homeworkSubmissions, quizSubmissions]);
 
   // Sync profile.totalPoints and userAccounts totalPoints with unified calculation engine
   useEffect(() => {
@@ -1784,20 +1789,30 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         })
       );
 
+      const isReviewingSelf =
+        Boolean(targetEmail && profile.email && targetEmail.toLowerCase().trim() === profile.email.toLowerCase().trim()) ||
+        Boolean(targetStudentId && profile.id && targetStudentId === profile.id);
+
+      if (isReviewingSelf) {
+        if (status === 'Approved') {
+          setLabs((prev) =>
+            prev.map((l) => (l.id === labId ? { ...l, isCompleted: true, submissionStatus: 'Approved', score } : l))
+          );
+        } else if (status === 'Rejected') {
+          setLabs((prev) =>
+            prev.map((l) => (l.id === labId ? { ...l, isCompleted: false, submissionStatus: 'Rejected', score: 0 } : l))
+          );
+        }
+      }
+
       if (status === 'Approved') {
-        setLabs((prev) =>
-          prev.map((l) => (l.id === labId ? { ...l, isCompleted: true, submissionStatus: 'Approved', score } : l))
-        );
         addNotification(
-          `Лабораторная работа #${labId} подтверждена Ментором! Начислено +${score} EXP.`,
+          `Лабораторная работа #${labId} ${targetEmail ? `(${targetEmail}) ` : ''}подтверждена Ментором! Оценка: +${score} EXP.`,
           'success'
         );
       } else if (status === 'Rejected') {
-        setLabs((prev) =>
-          prev.map((l) => (l.id === labId ? { ...l, isCompleted: false, submissionStatus: 'Rejected', score: 0 } : l))
-        );
         addNotification(
-          `Лабораторная работа #${labId} возвращена Ментором на доработку.`,
+          `Лабораторная работа #${labId} ${targetEmail ? `(${targetEmail}) ` : ''}возвращена Ментором на доработку.`,
           'info'
         );
       }
@@ -2598,12 +2613,17 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   const logoutStudent = useCallback(() => {
+    try {
+      localStorage.removeItem('devops_auth_token');
+      localStorage.removeItem('devops_auth_profile');
+      api.logout(profile.email).catch(() => {});
+    } catch {}
     setProfile((prev) => ({
       ...prev,
       isAuthenticated: false,
     }));
     setActivePage('login');
-  }, []);
+  }, [profile.email]);
 
   // Actions: Cache & Reset
   const clearBrowserCache = useCallback(async () => {

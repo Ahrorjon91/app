@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { getStaticUserIdForEmail } from '../lib/userIdUtils';
 
+import { authApi } from '../api/authApi';
+
 export const LoginPage: React.FC = () => {
   const { loginStudent, addUserAccount, userAccounts } = usePortal();
 
@@ -36,7 +38,7 @@ export const LoginPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Handle Login Submit
+  // Handle Login Submit with Server Authentication & Cryptographic Session Token
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
@@ -51,64 +53,40 @@ export const LoginPage: React.FC = () => {
       const inputClean = username.trim().toLowerCase();
       const inputPass = password.trim();
 
-      // Fallback admin account
-      const adminFallback = {
-        name: 'Administrator',
-        email: 'admin@devopspro.tech',
-        password: 'admin',
-        role: 'admin' as const,
-        group: 'Администрация',
-        status: 'Active' as const,
-        unlockedLessonsCount: 24,
-      };
+      // Real server-authoritative authentication via SQLite backend
+      const res = await authApi.login(inputClean, inputPass);
 
-      const candidateUsers = [...userAccounts, adminFallback];
-
-      // Match user by email, prefix (e.g. mullojon), or name
-      const matchedUser = candidateUsers.find((u) => {
-        if (!u || !u.email) return false;
-        const emailLower = String(u.email || '').toLowerCase().trim();
-        const userPrefix = emailLower.split('@')[0];
-        const nameLower = String(u.name || '').toLowerCase().trim();
-        return emailLower === inputClean || userPrefix === inputClean || (Boolean(nameLower) && nameLower === inputClean);
-      });
-
-      if (matchedUser) {
-        if (matchedUser.status === 'Pending') {
-          throw new Error(
-            `Ваш аккаунт "${matchedUser.email}" находится на рассмотрении и ожидает подтверждения администратором. Пожалуйста, обратитесь к администратору для активации доступа.`
-          );
-        }
-
-        if (matchedUser.status === 'Blocked') {
-          throw new Error(`Ваш аккаунт "${matchedUser.email}" заблокирован администратором.`);
-        }
-
-        const expectedPass = String(matchedUser.password || '123456789').trim();
-        if (expectedPass !== inputPass) {
-          throw new Error(`Неверный пароль для аккаунта "${matchedUser.email}"`);
-        }
-
-        const canonicalUserId = matchedUser.role === 'admin'
-          ? 'ADM-2026-0001'
-          : ((matchedUser as any).id || getStaticUserIdForEmail(matchedUser.email, userAccounts));
-
-        loginStudent({
-          name: matchedUser.name,
-          email: matchedUser.email,
-          role: matchedUser.role,
-          group: matchedUser.group || 'Группа 1 (Август 2026)',
-          id: canonicalUserId,
-          unlockedLessonsCount: matchedUser.unlockedLessonsCount || (matchedUser.role === 'admin' ? 24 : 1),
-          loginUsername: matchedUser.email.split('@')[0],
-          loginPassword: inputPass,
-        });
-        setLoading(false);
-        return;
+      if (!res || !res.success) {
+        throw new Error(res?.error || 'Неверный логин или пароль');
       }
 
-      throw new Error(`Пользователь "${username}" не найден в базе данных. Проверьте логин или зарегистрируйтесь.`);
+      const rawUser = (res as any).user || (res as any).data?.user || (res as any).student;
+      const rawToken = (res as any).token || (res as any).data?.token;
 
+      if (!rawUser) {
+        throw new Error('Не удалось получить профиль пользователя от сервера');
+      }
+
+      if (rawToken) {
+        localStorage.setItem('devops_auth_token', rawToken);
+      }
+      localStorage.setItem(
+        'devops_auth_profile',
+        JSON.stringify({
+          ...rawUser,
+          token: rawToken,
+          sessionToken: rawToken,
+          isAuthenticated: true,
+        })
+      );
+
+      loginStudent({
+        ...rawUser,
+        token: rawToken,
+        loginUsername: rawUser.email?.split('@')[0] || inputClean,
+      });
+
+      setLoading(false);
     } catch (err: any) {
       setErrorMessage(err.message || 'Ошибка входа');
       setLoading(false);

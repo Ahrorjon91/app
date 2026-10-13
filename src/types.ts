@@ -261,6 +261,8 @@ export interface QuizSubmissionResult {
   status?: 'Submitted' | 'Approved' | 'Rejected' | 'Pending' | 'Reviewed';
   reviewedAt?: string;
   reviewedBy?: string;
+  lessonId?: number;
+  retakeAllowed?: boolean;
 }
 
 export interface QuizQuestion {

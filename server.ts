@@ -35,28 +35,69 @@ async function startServer() {
   };
   const PORT = resolvePort();
 
-  // Middlewares
-  app.use((_req, res, next) => {
+  // Security Headers & Request Filtering Middleware
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    res.setHeader(
+      'Content-Security-Policy',
+      "default-src 'self' 'unsafe-inline' data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' http: https: ws: wss:; frame-ancestors *;"
+    );
+
+    // Block direct HTTP access to server-side SQLite files and private server secrets
+    // Note: Do not block frontend src/data/ modules
+    const lowerPath = (req.path || '').toLowerCase();
+    if (
+      lowerPath.endsWith('.sqlite') ||
+      lowerPath.endsWith('.sqlite-wal') ||
+      lowerPath.endsWith('.sqlite-shm') ||
+      lowerPath.endsWith('.db') ||
+      lowerPath.endsWith('.db-wal') ||
+      lowerPath.endsWith('.db-shm') ||
+      lowerPath.startsWith('/server/data/') ||
+      lowerPath.includes('/server/db') ||
+      lowerPath.includes('.env') ||
+      lowerPath.includes('.git') ||
+      lowerPath.includes('session_secret') ||
+      lowerPath.includes('ecosystem.config') ||
+      lowerPath.endsWith('.key')
+    ) {
+      return res.status(403).json({ success: false, error: 'Access denied: sensitive resource' });
+    }
+
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-    if (_req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, X-Session-Token, X-User-Email, X-User-Role');
+    if (req.method === 'OPTIONS') {
       return res.sendStatus(200);
     }
     next();
   });
-  app.use(express.json({ limit: '50mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+  app.use(express.json({ limit: '25mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
-  // Static uploads directory serving
+  // Static uploads directory serving with security headers
   const uploadsDir = path.resolve(__dirname, 'uploads');
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
   }
-  app.use('/uploads', express.static(uploadsDir));
-  app.use('/ai/api/uploads', express.static(uploadsDir));
-  app.use('/admin/api/uploads', express.static(uploadsDir));
-  app.use('/api/uploads', express.static(uploadsDir));
+  const uploadsStaticOptions: Parameters<typeof express.static>[1] = {
+    dotfiles: 'ignore',
+    setHeaders: (res, filePath) => {
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      const ext = path.extname(filePath).toLowerCase();
+      // Force download for non-image files to prevent stored XSS from malicious HTML/SVG
+      if (!['.jpg', '.jpeg', '.png', '.webp', '.gif'].includes(ext)) {
+        res.setHeader('Content-Disposition', 'attachment');
+      }
+    }
+  };
+  app.use('/uploads', express.static(uploadsDir, uploadsStaticOptions));
+  app.use('/ai/api/uploads', express.static(uploadsDir, uploadsStaticOptions));
+  app.use('/admin/api/uploads', express.static(uploadsDir, uploadsStaticOptions));
+  app.use('/api/uploads', express.static(uploadsDir, uploadsStaticOptions));
 
   // API Routes - mount on /ai/api, /admin/api, and /api for full compatibility
   app.use('/ai/api', apiRouter);

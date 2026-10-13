@@ -61,7 +61,11 @@ export interface InlineLabSubmissionProps {
   taskTitle?: string;
   lessonTitle?: string;
   labTitle?: string;
+  title?: string;
   defaultTitle?: string;
+  defaultText?: string;
+  checklistItems?: string[];
+  extraSummaryText?: string;
   rewardExp?: number;
   rewardXp?: number;
   onSubmitted?: () => void;
@@ -73,14 +77,18 @@ export const InlineLabSubmission: React.FC<InlineLabSubmissionProps> = ({
   taskTitle,
   lessonTitle,
   labTitle,
+  title,
   defaultTitle,
+  defaultText,
+  checklistItems,
+  extraSummaryText,
   rewardExp = 100,
   rewardXp,
   onSubmitted
 }) => {
   const actualLabId = Number(labId || lessonId || 1);
   const actualLessonId = Number(lessonId || labId || 1);
-  const actualTitle = labTitle || lessonTitle || taskTitle || defaultTitle || `Лабораторная работа #${actualLabId}`;
+  const actualTitle = labTitle || lessonTitle || taskTitle || title || defaultTitle || `Лабораторная работа #${actualLabId}`;
   const actualExp = rewardExp || rewardXp || 100;
 
   const portal = usePortal() as any;
@@ -181,11 +189,12 @@ export const InlineLabSubmission: React.FC<InlineLabSubmissionProps> = ({
     }
   }, [actualLabId, existingSub?.id, existingSub?.submittedAt, existingSub?.repoUrl, existingSub?.demoUrl, existingSub?.fileUrl]);
 
+  const isAdmin = profile?.role === 'admin';
   const labItem = (portal?.labs || []).find((l: any) => Number(l.id) === actualLabId);
   const rawSubmissionStatus =
     existingSub?.status ||
     existingSub?.submissionStatus ||
-    labItem?.submissionStatus ||
+    (!isAdmin ? labItem?.submissionStatus : undefined) ||
     (notificationSent ? 'Submitted' : 'Not Submitted');
   const submissionStatus: SubmissionStatus =
     rawSubmissionStatus === 'Pending' || rawSubmissionStatus === 'pending'
@@ -195,8 +204,8 @@ export const InlineLabSubmission: React.FC<InlineLabSubmissionProps> = ({
   const score =
     existingSub?.score !== undefined && existingSub?.score !== null && existingSub?.score > 0
       ? existingSub.score
-      : labItem?.score;
-  const mentorFeedback = existingSub?.feedback || existingSub?.mentorFeedback || labItem?.mentorFeedback || '';
+      : (!isAdmin ? labItem?.score : undefined);
+  const mentorFeedback = existingSub?.feedback || existingSub?.mentorFeedback || (!isAdmin ? labItem?.mentorFeedback : '') || '';
   const confirmedExp = COURSE_RULES.calculateMentorExp(
     score,
     submissionStatus === 'Approved' ? 'Approved' : submissionStatus,
@@ -646,7 +655,11 @@ export interface InlineHomeworkSubmissionProps {
   taskTitle?: string;
   homeworkTitle?: string;
   lessonTitle?: string;
+  title?: string;
   defaultTitle?: string;
+  defaultText?: string;
+  checklistItems?: string[];
+  extraSummaryText?: string;
   rewardExp?: number;
   rewardXp?: number;
   onSubmitted?: () => void;
@@ -659,13 +672,17 @@ export const InlineHomeworkSubmission: React.FC<InlineHomeworkSubmissionProps> =
   taskTitle,
   homeworkTitle,
   lessonTitle,
+  title,
   defaultTitle,
+  defaultText,
+  checklistItems,
+  extraSummaryText,
   rewardExp = 100,
   rewardXp,
   onSubmitted
 }) => {
   const actualLessonId = Number(lessonId || lessonNumber || homeworkId || 1);
-  const actualTitle = homeworkTitle || taskTitle || lessonTitle || defaultTitle || `Домашнее задание к Уроку #${actualLessonId}`;
+  const actualTitle = homeworkTitle || taskTitle || lessonTitle || title || defaultTitle || `Домашнее задание к Уроку #${actualLessonId}`;
   const actualExp = rewardExp || rewardXp || 100;
 
   const portal = usePortal() as any;
@@ -1229,20 +1246,33 @@ export interface InlineTestSubmissionProps {
   taskTitle?: string;
   testTitle?: string;
   lessonTitle?: string;
+  title?: string;
   defaultTitle?: string;
   rewardExp?: number;
   rewardXp?: number;
+  score?: number;
+  maxScore?: number;
+  details?: string;
+  questions?: any[];
+  selectedAnswers?: any;
   onSubmitted?: () => void;
 }
 
 export const InlineTestSubmission: React.FC<InlineTestSubmissionProps> = ({
   testId = 'TEST_GENERIC',
   lessonId,
+  taskTitle,
   testTitle,
   lessonTitle,
+  title,
   defaultTitle,
   rewardExp = 100,
   rewardXp,
+  score,
+  maxScore,
+  details,
+  questions,
+  selectedAnswers,
   onSubmitted
 }) => {
   const portal = usePortal() as any;
@@ -1252,7 +1282,7 @@ export const InlineTestSubmission: React.FC<InlineTestSubmissionProps> = ({
     return m ? parseInt(m[1], 10) : undefined;
   })();
   const resolvedLessonId: number = lessonId || parsedFromTestId || portal?.selectedLessonId || 1;
-  const actualTitle = testTitle || lessonTitle || defaultTitle || `Мини-тест к Уроку #${resolvedLessonId}`;
+  const actualTitle = testTitle || lessonTitle || taskTitle || title || defaultTitle || `Мини-тест к Уроку #${resolvedLessonId}`;
   const actualExp = rewardExp || rewardXp || 100;
   const profile = portal?.profile || portal?.user || { id: 'USR-STU-01', email: 'student@devopspro.tech', name: 'Студент' };
 

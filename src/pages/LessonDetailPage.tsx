@@ -94,7 +94,7 @@ export const LessonDetailPage: React.FC = () => {
       readSections[`lesson-${lesson.id}-sec-1`]
   );
   const isLabRead = Boolean(
-    lesson.isCompleted ||
+    (profile.role !== 'admin' && lesson.isCompleted) ||
       readSections[`sec-${lesson.id}-lab`] ||
       readSections[`lesson-${lesson.id}-lab`] ||
       readSections[`lesson-${lesson.id}-sec-2`] ||

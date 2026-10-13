@@ -29,7 +29,7 @@ export const Lesson21McpLectureSection: React.FC = () => {
   const handleCopy = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    setTimeout(() => setCopiedId(false), 2000);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const handleSaveReflection = () => {

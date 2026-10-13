@@ -235,11 +235,14 @@ export function generateXpLedger(
   studentEmail?: string,
   labSubmissions?: LabData[],
   homeworkSubmissions?: HomeworkSubmission[],
-  quizSubmissions?: QuizSubmissionResult[]
+  quizSubmissions?: QuizSubmissionResult[],
+  userRole?: string
 ): XpLedgerItem[] {
   const ledger: XpLedgerItem[] = [];
   const seenKeys = new Set<string>();
   const emailLower = (studentEmail || '').toLowerCase().trim();
+  const sId = String(studentId || '').trim();
+  const isAdminRole = (userRole || '').toLowerCase() === 'admin' || emailLower === 'admin@devopspro.tech' || sId === 'ADM-2026-0001' || sId.startsWith('ADM-');
 
   const addLedgerEntry = (
     activityId: string,
@@ -292,52 +295,55 @@ export function generateXpLedger(
   });
 
   // 2. Laboratory Work XP (50 / 75 / 100 EXP calculated and confirmed ONLY after Mentor review)
-  const sId = String(studentId || '').trim();
-  const allLabsToCheck = [
-    ...(labSubmissions || []).map((l) => ({ ...l, _fromStudentLabs: false })),
-    ...(labs || []).map((l) => ({ ...l, _fromStudentLabs: true })),
-  ];
-  allLabsToCheck.forEach((lab: any) => {
-    if (!lab) return;
-    const labEmail = String(lab.studentEmail || '').toLowerCase().trim();
-    const labStudentId = String(lab.studentId || '').trim();
-    const hasStudentOwner = Boolean(labEmail || labStudentId);
-    const isMatchingEmail = Boolean(labEmail && emailLower && (labEmail === emailLower || labEmail.includes(emailLower) || emailLower.includes(labEmail)));
-    const isMatchingId = Boolean(labStudentId && sId && (labStudentId === sId || labStudentId.includes(sId) || sId.includes(labStudentId)));
-    const isMine = hasStudentOwner ? (isMatchingEmail || isMatchingId) : Boolean(lab._fromStudentLabs || (!emailLower && !sId));
-    if (!isMine) return;
+  // Administrators / Mentors do not submit student labs and do not receive lab completion EXP
+  if (!isAdminRole) {
+    const allLabsToCheck = [
+      ...(labSubmissions || []).map((l) => ({ ...l, _fromStudentLabs: false })),
+      ...(labs || []).map((l) => ({ ...l, _fromStudentLabs: true })),
+    ];
+    allLabsToCheck.forEach((lab: any) => {
+      if (!lab) return;
+      const labEmail = String(lab.studentEmail || '').toLowerCase().trim();
+      const labStudentId = String(lab.studentId || '').trim();
+      const hasStudentOwner = Boolean(labEmail || labStudentId);
+      const isMatchingEmail = Boolean(labEmail && emailLower && (labEmail === emailLower || labEmail.includes(emailLower) || emailLower.includes(labEmail)));
+      const isMatchingId = Boolean(labStudentId && sId && (labStudentId === sId || labStudentId.includes(sId) || sId.includes(labStudentId)));
+      const isMine = hasStudentOwner ? (isMatchingEmail || isMatchingId) : (!emailLower && !sId && Boolean(lab._fromStudentLabs && (lab.isCompleted || lab.submissionStatus === 'Approved')));
+      if (!isMine) return;
 
-    const rawNumId = (lab as any).labId || (lab as any).LabID || (typeof lab.id === 'number' ? lab.id : parseInt(String(lab.id || '').replace(/\D/g, ''), 10));
-    const labNumber = Number(rawNumId) || lab.id;
-    const targetLessonId = Number(lab.lessonId || labNumber);
-    const labStatus = String((lab as any).status || lab.submissionStatus || '').trim().toLowerCase();
+      const rawNumId = (lab as any).labId || (lab as any).LabID || (typeof lab.id === 'number' ? lab.id : parseInt(String(lab.id || '').replace(/\D/g, ''), 10));
+      const labNumber = Number(rawNumId) || lab.id;
+      const targetLessonId = Number(lab.lessonId || labNumber);
+      const labStatus = String((lab as any).status || lab.submissionStatus || '').trim().toLowerCase();
 
-    const confirmedLabExp = COURSE_RULES.calculateMentorExp(lab.score, labStatus);
-    if (labStatus === 'approved' && confirmedLabExp > 0) {
-      addLedgerEntry(
-        `lab_${labNumber}`,
-        'lab',
-        confirmedLabExp,
-        `Лабораторная работа №${labNumber}: Подтверждена ментором (${confirmedLabExp}/100 EXP)`,
-        targetLessonId
-      );
-    }
-  });
+      const confirmedLabExp = COURSE_RULES.calculateMentorExp(lab.score, labStatus);
+      if (labStatus === 'approved' && confirmedLabExp > 0) {
+        addLedgerEntry(
+          `lab_${labNumber}`,
+          'lab',
+          confirmedLabExp,
+          `Лабораторная работа №${labNumber}: Подтверждена ментором (${confirmedLabExp}/100 EXP)`,
+          targetLessonId
+        );
+      }
+    });
+  }
 
   // 3. Homework XP (50 / 75 / 100 EXP calculated and confirmed ONLY after Mentor review)
-  const allHwToCheck: any[] = [
-    ...(homeworkSubmissions || []).filter(Boolean).map((h) => ({ ...h, _fromStudentHw: false })),
-    ...Object.values(homeworks || {}).filter(Boolean).map((h) => ({ ...h, _fromStudentHw: true }))
-  ];
-  allHwToCheck.forEach((hw) => {
-    if (!hw) return;
-    const hwEmail = String(hw.studentEmail || '').toLowerCase().trim();
-    const hwStudentId = String(hw.studentId || '').trim();
-    const hasStudentOwner = Boolean(hwEmail || hwStudentId);
-    const isMatchingEmail = Boolean(hwEmail && emailLower && (hwEmail === emailLower || hwEmail.includes(emailLower) || emailLower.includes(hwEmail)));
-    const isMatchingId = Boolean(hwStudentId && sId && (hwStudentId === sId || hwStudentId.includes(sId) || sId.includes(hwStudentId)));
-    const isMine = hasStudentOwner ? (isMatchingEmail || isMatchingId) : Boolean(hw._fromStudentHw || (!emailLower && !sId));
-    if (!isMine) return;
+  if (!isAdminRole) {
+    const allHwToCheck: any[] = [
+      ...(homeworkSubmissions || []).filter(Boolean).map((h) => ({ ...h, _fromStudentHw: false })),
+      ...Object.values(homeworks || {}).filter(Boolean).map((h) => ({ ...h, _fromStudentHw: true }))
+    ];
+    allHwToCheck.forEach((hw) => {
+      if (!hw) return;
+      const hwEmail = String(hw.studentEmail || '').toLowerCase().trim();
+      const hwStudentId = String(hw.studentId || '').trim();
+      const hasStudentOwner = Boolean(hwEmail || hwStudentId);
+      const isMatchingEmail = Boolean(hwEmail && emailLower && (hwEmail === emailLower || hwEmail.includes(emailLower) || emailLower.includes(hwEmail)));
+      const isMatchingId = Boolean(hwStudentId && sId && (hwStudentId === sId || hwStudentId.includes(sId) || sId.includes(hwStudentId)));
+      const isMine = hasStudentOwner ? (isMatchingEmail || isMatchingId) : (!emailLower && !sId && Boolean(hw._fromStudentHw));
+      if (!isMine) return;
 
     const targetLessonId = Number(hw.lessonId);
     const hwStatus = String(hw.status || (hw as any).submissionStatus || '').trim().toLowerCase();
@@ -353,6 +359,7 @@ export function generateXpLedger(
       );
     }
   });
+  }
 
   // 4. Test XP (Regular Lesson Tests, Block Tests, Final Exam)
   Object.entries(testScores).forEach(([testId, scoreData]: [string, any]) => {
