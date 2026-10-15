@@ -1,4 +1,13 @@
-# Apple — Style Reference
+# [УЧЕБНЫЙ МАТЕРИАЛ ДЛЯ УРОКОВ 12-13] Apple — Style Reference
+> ⚠️ **ВАЖНОЕ ПРИМЕЧАНИЕ ДЛЯ РАЗРАБОТЧИКОВ И ИИ-МОДЕЛЕЙ**:  
+> Данный файл является **исключительно учебным образцом для студентов в рамках Урока 12 и Урока 13** (создание лендинга iPhone 18 Pro и Apple Watch Ultra).  
+> **Этот файл НЕ является спецификацией дизайна самого портала Академии!**  
+> Основной дизайн портала DevOps / AI Academy — это оригинальная тема **«AI FOR LIFE» (Dark Slate / Cyber Indigo & Cyan)**.  
+> **Категорически ЗАПРЕЩЕНО переделывать интерфейс портала по этому файлу!**
+
+---
+
+# Apple — Style Reference (Учебный референс для практических заданий)
 > Midnight endurance instrument. Build screens as a sequence of black exhibition bays where oversized SF Pro headlines frame precision hardware, active data, and carefully rationed electric color.
 
 **Theme:** dark
