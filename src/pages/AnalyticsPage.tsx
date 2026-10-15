@@ -562,29 +562,29 @@ export const AnalyticsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Top Header */}
-      <div className="border-b border-slate-200 dark:border-slate-800 pb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      {/* Top Header Banner */}
+      <div className="p-6 sm:p-8 rounded-[28px] bg-[#161618] border border-white/[0.08] flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] text-[#ff791a] text-xs font-semibold tracking-wide mb-3 border border-white/[0.08]">
             <ShieldCheck className="w-3.5 h-3.5" /> DEVOPS PRO ACADEMY
           </div>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            <TrendingUp className="w-6 h-6 text-indigo-500" /> Академическая Аналитика и Метрики
+          <h1 className="text-2xl sm:text-3xl font-semibold text-[#f5f5f7] tracking-tight flex items-center gap-2.5">
+            <TrendingUp className="w-7 h-7 text-[#0071e3]" /> Академическая Аналитика и Метрики
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-sm text-[#86868b] mt-1.5 max-w-2xl">
             История активности, академический прогресс по 24 урокам, карта компетенций и табель успеваемости
           </p>
         </div>
 
         {/* Header Action Controls */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           {/* Student Selector */}
           <div className="flex items-center gap-2">
             <select
               id="analytics-student-selector"
               value={selectedStudentEmail}
               onChange={(e) => setSelectedStudentEmail(e.target.value)}
-              className="px-3.5 py-2 rounded-2xl text-xs bg-white dark:bg-[#14141B] border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+              className="px-4 py-2.5 rounded-xl text-xs bg-[#1c1c1e] border border-white/[0.12] text-[#f5f5f7] font-medium focus:outline-none focus:border-[#0071e3] transition-colors shadow-sm"
             >
               {enrichedStudentAccounts.map((st) => (
                 <option key={st.id || st.email} value={st.email}>
@@ -601,9 +601,9 @@ export const AnalyticsPage: React.FC = () => {
               setInitialEditSignatures(false);
               setIsReportModalOpen(true);
             }}
-            className="px-4 py-2 rounded-2xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all"
+            className="px-4 py-2.5 rounded-xl text-xs font-medium bg-[#0071e3] hover:bg-[#0077ed] text-white flex items-center gap-2 shadow-sm transition-colors active:scale-95"
           >
-            <Printer className="w-4 h-4" /> Отчет KPI (Руководство / Родители)
+            <Printer className="w-4 h-4" /> Отчет KPI (Руководство)
           </button>
 
           {/* Edit Signatures Trigger */}
@@ -613,17 +613,17 @@ export const AnalyticsPage: React.FC = () => {
               setInitialEditSignatures(true);
               setIsReportModalOpen(true);
             }}
-            className="px-3.5 py-2 rounded-2xl text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/20 flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+            className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#f5f5f7] bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] flex items-center gap-1.5 transition-colors active:scale-95"
             title="Настройка подписей в академическом отчете: Технический Ментор и Руководитель Программы"
           >
-            <Edit3 className="w-3.5 h-3.5" /> Лица отчета
+            <Edit3 className="w-3.5 h-3.5 text-[#86868b]" /> Лица отчета
           </button>
 
           {/* Reset Academic Data Button */}
           <button
             id="open-reset-academic-modal-btn"
             onClick={() => setIsResetModalOpen(true)}
-            className="px-3.5 py-2 rounded-2xl text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center gap-1.5 transition-all"
+            className="px-3.5 py-2.5 rounded-xl text-xs font-medium text-[#ff453a] bg-[#ff453a]/10 hover:bg-[#ff453a]/20 border border-[#ff453a]/20 flex items-center gap-1.5 transition-colors"
           >
             <RotateCcw className="w-4 h-4" /> Сбросить успеваемость
           </button>
@@ -631,14 +631,14 @@ export const AnalyticsPage: React.FC = () => {
       </div>
 
       {/* Navigation Tabs Bar */}
-      <div className="p-1.5 rounded-2xl bg-slate-100 dark:bg-[#14141B] border border-slate-200 dark:border-white/5 flex items-center gap-1 overflow-x-auto text-xs font-bold">
+      <div className="p-1 rounded-2xl bg-[#161618] border border-white/[0.08] flex items-center gap-1 overflow-x-auto text-xs font-medium">
         <button
           id="tab-btn-dossier"
           onClick={() => setActiveTab('dossier')}
-          className={`px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap ${
+          className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-colors whitespace-nowrap ${
             activeTab === 'dossier'
-              ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-[#0071e3] text-white font-semibold shadow-sm'
+              : 'text-[#86868b] hover:text-[#f5f5f7]'
           }`}
         >
           <LayoutDashboard className="w-4 h-4" /> Досье и Метрики
@@ -647,10 +647,10 @@ export const AnalyticsPage: React.FC = () => {
         <button
           id="tab-btn-charts"
           onClick={() => setActiveTab('charts')}
-          className={`px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap ${
+          className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-colors whitespace-nowrap ${
             activeTab === 'charts'
-              ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-[#0071e3] text-white font-semibold shadow-sm'
+              : 'text-[#86868b] hover:text-[#f5f5f7]'
           }`}
         >
           <BarChart3 className="w-4 h-4" /> Диаграммы и Аналитика
@@ -659,10 +659,10 @@ export const AnalyticsPage: React.FC = () => {
         <button
           id="tab-btn-transcript"
           onClick={() => setActiveTab('transcript')}
-          className={`px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap ${
+          className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-colors whitespace-nowrap ${
             activeTab === 'transcript'
-              ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-[#0071e3] text-white font-semibold shadow-sm'
+              : 'text-[#86868b] hover:text-[#f5f5f7]'
           }`}
         >
           <FileSpreadsheet className="w-4 h-4" /> Ведомость 24 Уроков
@@ -671,10 +671,10 @@ export const AnalyticsPage: React.FC = () => {
         <button
           id="tab-btn-errors"
           onClick={() => setActiveTab('errors')}
-          className={`px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap ${
+          className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-colors whitespace-nowrap ${
             activeTab === 'errors'
-              ? 'bg-white dark:bg-rose-600 text-rose-600 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-[#ff453a] text-white font-semibold shadow-sm'
+              : 'text-[#86868b] hover:text-[#f5f5f7]'
           }`}
         >
           <AlertOctagon className="w-4 h-4" /> Ошибки и Повторение
@@ -683,10 +683,10 @@ export const AnalyticsPage: React.FC = () => {
         <button
           id="tab-btn-logs"
           onClick={() => setActiveTab('logs')}
-          className={`px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap ${
+          className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-colors whitespace-nowrap ${
             activeTab === 'logs'
-              ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-[#0071e3] text-white font-semibold shadow-sm'
+              : 'text-[#86868b] hover:text-[#f5f5f7]'
           }`}
         >
           <History className="w-4 h-4" /> Журнал Действий (Логи)
@@ -695,10 +695,10 @@ export const AnalyticsPage: React.FC = () => {
         <button
           id="tab-btn-cohort"
           onClick={() => setActiveTab('cohort')}
-          className={`px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all whitespace-nowrap ${
+          className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-colors whitespace-nowrap ${
             activeTab === 'cohort'
-              ? 'bg-white dark:bg-indigo-600 text-indigo-600 dark:text-white shadow-sm'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-[#0071e3] text-white font-semibold shadow-sm'
+              : 'text-[#86868b] hover:text-[#f5f5f7]'
           }`}
         >
           <Users className="w-4 h-4" /> Сводка Потока Курса

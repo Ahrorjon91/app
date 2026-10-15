@@ -1,22 +1,23 @@
 import React from 'react';
 
+/**
+ * Apple Midnight Endurance Stage Background
+ * Built per DESIGN.md: Pure Carbon #111111 canvas with subtle vignette depth
+ * and zero garish neon gradients or rainbow pulses.
+ */
 export const CyberBackground: React.FC = () => {
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none bg-[#000000]"
       style={{ contain: 'strict' }}
     >
-      {/* Crisp Static Cyber Grid (Zero frame repaints) */}
-      <div className="absolute inset-0 bg-cyber-grid opacity-25 dark:opacity-35" />
-
-      {/* Static Ambient Radial Glows (Baked into GPU background layer once, 0% CPU/GPU load) */}
+      {/* Subtle depth vignette */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none opacity-40"
         style={{
           backgroundImage: `
-            radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.08) 0%, transparent 40%),
-            radial-gradient(circle at 90% 30%, rgba(139, 92, 246, 0.08) 0%, transparent 45%),
-            radial-gradient(circle at 35% 85%, rgba(59, 130, 246, 0.06) 0%, transparent 40%)
+            radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.03) 0%, transparent 70%),
+            radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.6) 0%, transparent 70%)
           `,
         }}
       />

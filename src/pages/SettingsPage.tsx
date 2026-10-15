@@ -8,8 +8,7 @@ import {
   HardDrive,
   ShieldCheck,
   Layers,
-  CheckCircle2,
-  Check
+  CheckCircle2
 } from 'lucide-react';
 import { api } from '../lib/api';
 
@@ -65,7 +64,7 @@ export const SettingsPage: React.FC = () => {
       await fetchSqliteStats();
       setSyncStatus({
         success: true,
-        message: 'Локальный кэш браузера очищен, актуальные данные получены из SQLite базы!'
+        message: 'Локальный кэш браузера очищен, данные синхронизированы из SQLite базы!'
       });
     } catch (err: any) {
       setSyncStatus({
@@ -86,7 +85,7 @@ export const SettingsPage: React.FC = () => {
       await fetchSqliteStats();
       setSyncStatus({
         success: true,
-        message: 'Все сданные работы (ДЗ, лабораторные, тесты), вложения и прогресс успешно очищены в SQLite!'
+        message: 'Все сданные работы (ДЗ, лабы, тесты) успешно очищены в базе SQLite.'
       });
     } catch (err: any) {
       setSyncStatus({ success: false, message: err?.message || 'Ошибка при сбросе данных' });
@@ -99,77 +98,81 @@ export const SettingsPage: React.FC = () => {
   const handleResetLocalSession = async () => {
     setResettingLocalSession(true);
     try {
-      await resetData('all');
-      await refreshDatabase();
-      await fetchSqliteStats();
+      localStorage.removeItem('devops_student_profile');
+      localStorage.removeItem('devops_auth_token');
+      localStorage.removeItem('devops_auth_profile');
       setSyncStatus({
         success: true,
-        message: 'Прогресс сессии, отметки уроков и задания успешно сброшены в начальное состояние!'
+        message: 'Локальная сессия сброшена. Перезагрузка страницы...'
       });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err: any) {
-      setSyncStatus({ success: false, message: err?.message || 'Ошибка сброса прогресса сессии' });
-    } finally {
+      setSyncStatus({ success: false, message: err?.message || 'Ошибка сброса сессии' });
       setResettingLocalSession(false);
       setTimeout(() => setSyncStatus({}), 4000);
     }
   };
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-300 pb-16">
-      {/* Header */}
-      <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 space-y-3 shadow-xl">
-        <h1 className="text-2xl font-extrabold text-white flex items-center gap-3">
-          <Settings className="w-6 h-6 text-cyan-400" /> Настройки Портала & SQLite База Данных
+    <div className="space-y-6 text-[#f5f5f7]">
+      {/* Header Banner: Apple Midnight Exhibition Stage */}
+      <div className="p-6 md:p-8 rounded-[28px] bg-[#000000] border border-white/[0.08] space-y-2.5">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#1c1c1f] text-[#0071e3] border border-[#262629] text-[11px] font-medium">
+          <Settings className="w-3.5 h-3.5" />
+          <span>Системные параметры</span>
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-semibold text-[#f5f5f7] tracking-tight">
+          Настройки Портала & SQLite
         </h1>
-        <p className="text-xs text-slate-400 leading-relaxed">
-          Управление локальной реляционной базой данных SQLite, мониторинг состояния ACID-транзакций и резервное копирование
+        <p className="text-xs sm:text-sm text-[#86868b] leading-relaxed max-w-3xl">
+          Управление реляционной базой данных SQLite, мониторинг состояния ACID-транзакций и локальная синхронизация.
         </p>
       </div>
 
       {/* Notification Toast */}
       {syncStatus.message && (
         <div
-          className={`p-4 rounded-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in transition-all ${
+          className={`p-3.5 rounded-[20px] text-xs font-medium flex items-center gap-2 ${
             syncStatus.success
-              ? 'bg-emerald-950/80 border border-emerald-800/60 text-emerald-300'
-              : 'bg-rose-950/80 border border-rose-800/60 text-rose-300'
+              ? 'bg-[#1c2e22] border border-[#00d959]/30 text-[#00d959]'
+              : 'bg-rose-500/10 border border-rose-500/30 text-rose-300'
           }`}
         >
-          {syncStatus.success ? <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" /> : <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />}
+          {syncStatus.success ? <CheckCircle2 className="w-4 h-4 text-[#00d959] shrink-0" /> : <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />}
           <span>{syncStatus.message}</span>
         </div>
       )}
 
-      {/* Primary SQLite Database Status & Telemetry Card */}
-      <div className="p-6 rounded-3xl bg-slate-900/90 border border-cyan-800/40 space-y-5 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="border-b border-slate-800 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Primary SQLite Database Status Card */}
+      <div className="p-6 sm:p-8 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-6">
+        <div className="border-b border-[#262629] pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
-              <HardDrive className="w-5 h-5" />
+            <div className="p-2.5 rounded-full bg-[#000000] border border-[#262629] text-[#0071e3]">
+              <HardDrive className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                Реляционная База Данных SQLite (High-Speed ACID Storage)
+              <h3 className="text-base font-semibold text-[#f5f5f7] flex items-center gap-2">
+                Реляционная База Данных SQLite (ACID Storage)
               </h3>
-              <p className="text-[11px] text-slate-400">
-                Автономное хранение данных: аккаунты, прогресс уроков, сданные ДЗ, лабораторные отчеты, файлы и лидерборд
+              <p className="text-xs text-[#86868b] mt-0.5">
+                Автономное хранение данных: аккаунты, прогресс уроков, сданные ДЗ, лабораторные отчеты и лидерборд
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full bg-emerald-950/90 text-emerald-300 text-[10px] font-bold border border-emerald-800/60 flex items-center gap-1.5 shrink-0">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="px-3 py-1 rounded-full bg-[#1c2e22] text-[#00d959] text-[10px] font-medium border border-[#00d959]/30 flex items-center gap-1.5 shrink-0">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#00d959]" />
               SQLite Активен
             </span>
             <button
               onClick={fetchSqliteStats}
               disabled={loadingStats || isSyncingDb}
-              className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+              className="p-2 rounded-full bg-[#1c1c1f] hover:bg-[#262629] text-[#86868b] hover:text-[#f5f5f7] border border-[#333336] transition-colors cursor-pointer"
               title="Обновить метрики"
             >
-              <RefreshCw className={`w-4 h-4 ${loadingStats || isSyncingDb ? 'animate-spin text-cyan-400' : ''}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${loadingStats || isSyncingDb ? 'animate-spin text-[#0071e3]' : ''}`} />
             </button>
           </div>
         </div>
@@ -206,78 +209,78 @@ export const SettingsPage: React.FC = () => {
 
           return (
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-1">
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Пользователи</span>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-xl font-black text-white">{usersCount}</span>
-                    <span className="text-[10px] text-slate-400">аккаунтов</span>
-                  </div>
-                  <span className="text-[10px] text-slate-500 block truncate">Студенты и админы</span>
+              <div className="p-4 rounded-[20px] bg-[#000000] border border-[#262629] space-y-1">
+                <span className="text-[10px] text-[#86868b] font-medium uppercase tracking-wider block">Пользователи</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-semibold tabular-nums text-[#f5f5f7]">{usersCount}</span>
+                  <span className="text-[10px] text-[#86868b]">аккаунтов</span>
                 </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-1">
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Сданные работы</span>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-xl font-black text-cyan-400">{totalSubmissions}</span>
-                    <span className="text-[10px] text-slate-400">отчетов</span>
-                  </div>
-                  <span className="text-[10px] text-cyan-400/80 block truncate">Лаб: {labsCount} • ДЗ: {hwCount} • Тесты: {quizCount}</span>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-1">
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Вложения & Файлы</span>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-xl font-black text-amber-400">{attachmentsCount}</span>
-                    <span className="text-[10px] text-slate-400">файлов</span>
-                  </div>
-                  <span className="text-[10px] text-amber-400/80 block truncate">Загрузки: {uploadsSizeFormatted}</span>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-1">
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Размер SQLite</span>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-xl font-black text-indigo-400">{dbSizeFormatted}</span>
-                    <span className="text-[10px] text-slate-400">на диске</span>
-                  </div>
-                  <span className="text-[10px] text-indigo-400/80 block truncate">Всего: {totalStorageFormatted}</span>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 space-y-1 col-span-2 sm:col-span-1">
-                  <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider block">Скорость отклика</span>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="text-xl font-black text-emerald-400">&lt; 1 ms</span>
-                    <span className="text-[10px] text-emerald-400/80">ACID Instant</span>
-                  </div>
-                  <span className="text-[10px] text-emerald-400/80 block truncate">WAL Режим активен</span>
-                </div>
+                <span className="text-[10px] text-[#86868b] block truncate">Студенты и админы</span>
               </div>
+
+              <div className="p-4 rounded-[20px] bg-[#000000] border border-[#262629] space-y-1">
+                <span className="text-[10px] text-[#86868b] font-medium uppercase tracking-wider block">Сданные работы</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-semibold tabular-nums text-[#0071e3]">{totalSubmissions}</span>
+                  <span className="text-[10px] text-[#86868b]">отчетов</span>
+                </div>
+                <span className="text-[10px] text-[#86868b] block truncate">Лаб: {labsCount} · ДЗ: {hwCount}</span>
+              </div>
+
+              <div className="p-4 rounded-[20px] bg-[#000000] border border-[#262629] space-y-1">
+                <span className="text-[10px] text-[#86868b] font-medium uppercase tracking-wider block">Вложения & Файлы</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-semibold tabular-nums text-[#ff791b]">{attachmentsCount}</span>
+                  <span className="text-[10px] text-[#86868b]">файлов</span>
+                </div>
+                <span className="text-[10px] text-[#86868b] block truncate">{uploadsSizeFormatted}</span>
+              </div>
+
+              <div className="p-4 rounded-[20px] bg-[#000000] border border-[#262629] space-y-1">
+                <span className="text-[10px] text-[#86868b] font-medium uppercase tracking-wider block">Размер Базы</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-semibold tabular-nums text-[#f5f5f7]">{dbSizeFormatted}</span>
+                  <span className="text-[10px] text-[#86868b]">на диске</span>
+                </div>
+                <span className="text-[10px] text-[#86868b] block truncate">Всего: {totalStorageFormatted}</span>
+              </div>
+
+              <div className="p-4 rounded-[20px] bg-[#000000] border border-[#262629] space-y-1 col-span-2 sm:col-span-1">
+                <span className="text-[10px] text-[#86868b] font-medium uppercase tracking-wider block">Скорость отклика</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xl font-semibold tabular-nums text-[#00d959]">&lt; 1 ms</span>
+                  <span className="text-[10px] text-[#00d959]">ACID Ready</span>
+                </div>
+                <span className="text-[10px] text-[#86868b] block truncate">SQLite Wasm</span>
+              </div>
+            </div>
           );
         })()}
       </div>
 
-      {/* Cache & Danger Zone Responsive 2-Column Grid for Full Screen */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      {/* Sync & Danger Zone */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Cache & Local Sync Management */}
-        <div className="p-6 rounded-3xl bg-slate-900/90 border border-slate-800 space-y-4 shadow-xl flex flex-col justify-between">
+        <div className="p-6 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-4 flex flex-col justify-between">
           <div className="space-y-4">
-            <div className="border-b border-slate-800 pb-3 flex items-center gap-3">
-              <div className="p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                <Layers className="w-5 h-5" />
+            <div className="border-b border-[#262629] pb-3 flex items-center gap-3">
+              <div className="p-2.5 rounded-full bg-[#000000] border border-[#262629] text-[#0071e3]">
+                <Layers className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <h3 className="text-sm font-semibold text-[#f5f5f7]">
                   Синхронизация и Кэш Браузера
                 </h3>
-                <p className="text-[11px] text-slate-400">
-                  Сброс временных данных в памяти браузера для принудительного чтения из SQLite
+                <p className="text-[11px] text-[#86868b]">
+                  Сброс временных данных в браузере для чтения из SQLite
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-[20px] bg-[#000000] border border-[#262629]">
               <div className="space-y-1">
-                <span className="text-xs font-bold text-white block">Очистить локальный кэш браузера</span>
-                <span className="text-[11px] text-slate-400 block">
+                <span className="text-xs font-semibold text-[#f5f5f7] block">Очистить локальный кэш</span>
+                <span className="text-[11px] text-[#86868b] block">
                   Сбрасывает сохраненные в памяти браузера копии данных и заново синхронизирует состояние из SQLite.
                 </span>
               </div>
@@ -285,9 +288,9 @@ export const SettingsPage: React.FC = () => {
               <button
                 onClick={handleClearCacheAndReload}
                 disabled={loadingClearCache}
-                className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs flex items-center gap-2 transition-all shadow-md shadow-amber-600/20 disabled:opacity-50 shrink-0"
+                className="px-4 py-2 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-xs flex items-center gap-2 transition-colors disabled:opacity-50 shrink-0 cursor-pointer"
               >
-                <RefreshCw className={`w-4 h-4 ${loadingClearCache ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3.5 h-3.5 ${loadingClearCache ? 'animate-spin' : ''}`} />
                 <span>{loadingClearCache ? 'Очистка...' : 'Очистить кэш'}</span>
               </button>
             </div>
@@ -295,44 +298,44 @@ export const SettingsPage: React.FC = () => {
         </div>
 
         {/* Danger Zone */}
-        <div className="p-6 rounded-3xl bg-slate-900/90 border border-rose-950/60 space-y-4 shadow-xl flex flex-col justify-between">
+        <div className="p-6 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-4 flex flex-col justify-between">
           <div className="space-y-4">
-            <h3 className="text-sm font-bold text-rose-400 border-b border-slate-800 pb-3 flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-rose-400" /> Опасная зона (Danger Zone)
+            <h3 className="text-sm font-semibold text-[#ff791b] border-b border-[#262629] pb-3 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-[#ff791b]" /> Опасная зона
             </h3>
 
             <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-[20px] bg-[#000000] border border-[#262629]">
                 <div>
-                  <span className="text-xs font-bold text-white block">Сбросить сданные работы в SQLite</span>
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-xs font-semibold text-[#f5f5f7] block">Сбросить сданные работы в SQLite</span>
+                  <span className="text-[11px] text-[#86868b]">
                     Очищает лабораторные, ДЗ и тесты из базы данных (учетные записи пользователей сохраняются).
                   </span>
                 </div>
                 <button
                   onClick={handleResetAcademicData}
                   disabled={resettingAcademic}
-                  className="px-4 py-2 rounded-xl font-bold text-xs shrink-0 transition-colors border bg-rose-950 hover:bg-rose-900 text-rose-300 border-rose-800/60 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2 rounded-full font-medium text-xs shrink-0 transition-colors border bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border-rose-500/30 disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
                 >
                   <Trash2 className={`w-3.5 h-3.5 ${resettingAcademic ? 'animate-spin' : ''}`} />
                   <span>{resettingAcademic ? 'Сброс...' : 'Сбросить работы'}</span>
                 </button>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-950/60 border border-slate-800">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-[20px] bg-[#000000] border border-[#262629]">
                 <div>
-                  <span className="text-xs font-bold text-white block">Сбросить локальный прогресс сессии</span>
-                  <span className="text-[11px] text-slate-400">
-                    Сбрасывает отметки уроков и заданий для вашего профиля в начальное состояние.
+                  <span className="text-xs font-semibold text-[#f5f5f7] block">Сбросить локальную сессию</span>
+                  <span className="text-[11px] text-[#86868b]">
+                    Сбрасывает локальную сессию входа и возвращает на экран входа.
                   </span>
                 </div>
                 <button
                   onClick={handleResetLocalSession}
                   disabled={resettingLocalSession}
-                  className="px-4 py-2 rounded-xl font-bold text-xs shrink-0 transition-colors flex items-center gap-1.5 disabled:opacity-50 border bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700 cursor-pointer"
+                  className="px-4 py-2 rounded-full font-medium text-xs shrink-0 transition-colors flex items-center gap-1.5 disabled:opacity-50 border bg-[#1c1c1f] hover:bg-[#262629] text-[#86868b] hover:text-[#f5f5f7] border-[#333336] cursor-pointer"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${resettingLocalSession ? 'animate-spin' : ''}`} />
-                  <span>{resettingLocalSession ? 'Сброс...' : 'Сбросить'}</span>
+                  <span>{resettingLocalSession ? 'Сброс...' : 'Сбросить сессию'}</span>
                 </button>
               </div>
             </div>

@@ -9,7 +9,6 @@ import {
   ChevronRight,
   BookOpen,
   Sparkles,
-  AlertTriangle,
   Layers,
   Zap
 } from 'lucide-react';
@@ -80,7 +79,7 @@ export const LessonDetailPage: React.FC = () => {
     setActivePage
   });
 
-  // Exact dynamic EXP calculation for current lesson from unified engine
+  // Exact dynamic EXP calculation for current lesson
   const currentLessonXpItem = xpBreakdown?.lessonItems?.find((it) => it.lessonId === lesson.id);
   const labXp = currentLessonXpItem?.labXp || 0;
   const testXp = currentLessonXpItem?.testXp || 0;
@@ -101,15 +100,14 @@ export const LessonDetailPage: React.FC = () => {
       labXp > 0
   );
   const isQuizRead = Boolean(
-    lesson.isCompleted ||
+    (profile.role !== 'admin' && lesson.isCompleted) ||
       readSections[`sec-${lesson.id}-quiz`] ||
       readSections[`lesson-${lesson.id}-quiz`] ||
       readSections[`lesson-${lesson.id}-sec-3`] ||
-      readSections[`${lesson.id}-quiz`] ||
       testXp > 0
   );
   const isHwRead = Boolean(
-    lesson.isCompleted ||
+    (profile.role !== 'admin' && lesson.isCompleted) ||
       readSections[`sec-${lesson.id}-homework`] ||
       readSections[`lesson-${lesson.id}-homework`] ||
       readSections[`lesson-${lesson.id}-sec-4`] ||
@@ -121,134 +119,91 @@ export const LessonDetailPage: React.FC = () => {
     if (secId.includes('lab')) return isLabRead;
     if (secId.includes('quiz')) return isQuizRead;
     if (secId.includes('homework')) return isHwRead;
-    return Boolean(readSections[secId]);
+    return Boolean(readSections[secId] || lesson.isCompleted);
   };
 
-  const completedSectionsCount = sectionsToRender.filter((s) => isSectionCompleted(s.id)).length;
-  const progressPct = sectionsToRender.length > 0 ? Math.round((completedSectionsCount / sectionsToRender.length) * 100) : 0;
+  const completedSectionsCount = sectionsToRender.filter((sec) => isSectionCompleted(sec.id)).length;
+  const progressPct = Math.round((completedSectionsCount / (sectionsToRender.length || 1)) * 100);
 
   const lectureXp = isLectureRead ? 25 : 0;
-  const computedLocalLessonXp =
-    (isLectureRead ? 25 : 0) +
-    (isLabRead ? 25 : 0) +
-    (isQuizRead ? 25 : 0) +
-    (isHwRead ? 25 : 0) +
-    labXp +
-    testXp +
-    homeworkXp +
-    lessonBonusXp;
-  const totalLessonXp = currentLessonXpItem ? currentLessonXpItem.totalLessonXp : computedLocalLessonXp;
-
-  useEffect(() => {
-    if (sectionsToRender && sectionsToRender.length > 0) {
-      try {
-        const saved = sessionStorage.getItem(`devops_active_sec_${lesson.id}`);
-        if (saved && sectionsToRender.some((s) => s.id === saved)) {
-          setActiveSectionId(saved);
-          return;
-        }
-      } catch {}
-      setActiveSectionId(sectionsToRender[0].id);
-    }
-  }, [lesson.id]);
-
-  if (!unlocked) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center animate-in fade-in">
-        <div className="w-16 h-16 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 mb-4">
-          <AlertTriangle className="w-8 h-8" />
-        </div>
-        <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2">Урок #{lesson.id} Заблокирован</h2>
-        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mb-6">
-          Чтобы получить доступ к этому уроку, пройдите предыдущий материал и отправьте практическое задание или тест на проверку ментору.
-        </p>
-        <button
-          onClick={() => setActivePage('lessons')}
-          className="px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs transition-all shadow-md shadow-cyan-500/20 flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" /> Вернуться к списку уроков
-        </button>
-      </div>
-    );
-  }
+  const totalLessonXp = lectureXp + labXp + testXp + homeworkXp + lessonBonusXp;
 
   return (
-    <div className="lesson-content-reader w-full space-y-4 sm:space-y-6 animate-in fade-in duration-300 px-0 sm:px-2 md:px-4">
-      {/* Top Navigation & Controls */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
+    <div className="space-y-6 lesson-content-reader max-w-6xl mx-auto text-[#f5f5f7]">
+      {/* Top Bar Navigation */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-[#262629]">
         <button
           onClick={() => setActivePage('lessons')}
-          className="flex items-center gap-2 text-sm sm:text-base font-bold text-slate-300 hover:text-white transition-colors py-1"
+          className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1c1c1f] hover:bg-[#262629] text-[#86868b] hover:text-[#f5f5f7] border border-[#333336] text-xs font-medium transition-colors cursor-pointer w-fit"
         >
-          <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-          <span className="hidden sm:inline">Назад к списку уроков</span>
-          <span className="sm:hidden">К урокам</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>К списку уроков</span>
         </button>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => {
-              if (profile.role !== 'admin' && !isHwApprovedByMentor && !isHwSubmitted) {
-                const hwSec = sectionsToRender.find((s) => s.id.includes('homework'));
-                if (hwSec) handleSectionChange(hwSec.id);
+              if (profile.role === 'admin') {
+                toggleLessonCompletion(lesson.id);
               }
-              toggleLessonCompletion(lesson.id);
             }}
-            className={`px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold border flex items-center gap-2 transition-all ${
-              isHwApprovedByMentor || (profile.role === 'admin' && lesson.isCompleted)
-                ? 'bg-emerald-950 text-emerald-300 border-emerald-800/60 shadow-md shadow-emerald-950/40'
+            className={`px-4 py-1.5 rounded-full text-xs font-medium border flex items-center gap-2 transition-colors ${
+              isHwApprovedByMentor
+                ? 'bg-[#1c2e22] text-[#00d959] border-[#00d959]/40'
                 : isHwSubmitted
-                ? 'bg-amber-950/80 text-amber-300 border-amber-700/60'
-                : 'bg-slate-800 text-slate-200 border-slate-700 hover:bg-slate-700'
+                ? 'bg-[#311400] text-[#ff791b] border-[#ff791b]/40'
+                : 'bg-[#1c1c1f] text-[#86868b] border-[#333336]'
             }`}
           >
             <CheckCircle2
-              className={`w-4 h-4 shrink-0 ${
-                isHwApprovedByMentor ? 'text-emerald-400' : isHwSubmitted ? 'text-amber-400' : 'text-slate-400'
+              className={`w-3.5 h-3.5 shrink-0 ${
+                isHwApprovedByMentor ? 'text-[#00d959]' : isHwSubmitted ? 'text-[#ff791b]' : 'text-[#86868b]'
               }`}
             />
             <span>
               {isHwApprovedByMentor
-                ? 'ДЗ подтверждено Ментором • Урок Пройден'
+                ? 'ДЗ зачтено ментором · Урок пройден'
                 : isHwSubmitted
-                ? 'ДЗ на проверке у Ментора'
+                ? 'ДЗ на проверке ментора'
                 : profile.role === 'admin'
                 ? lesson.isCompleted
-                  ? 'Урок Пройден'
+                  ? 'Урок пройден'
                   : 'Отметить пройденным'
-                : 'Сдать ДЗ для открытия след. урока'}
+                : 'Сдайте ДЗ для открытия след. урока'}
             </span>
           </button>
         </div>
       </div>
 
-      {/* Lesson Hero Header */}
-      <div className="p-3.5 sm:p-7 md:p-9 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 space-y-3 sm:space-y-4 shadow-xl">
-        <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
-          <span className="px-3 py-1 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-800/60 font-mono font-bold text-xs sm:text-sm">
-            УРОК #{lesson.id} • НЕДЕЛЯ {lesson.week}
+      {/* Lesson Hero Header: Absolute Black Exhibition Stage */}
+      <div className="p-6 sm:p-8 rounded-[28px] bg-[#000000] border border-white/[0.08] space-y-4 text-[#f5f5f7]">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="px-3 py-1 rounded-full bg-[#1c1c1f] text-[#f5f5f7] border border-[#333336] font-mono font-medium">
+            УРОК #{lesson.id} · НЕДЕЛЯ {lesson.week}
           </span>
-          <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-200 border border-slate-700 font-semibold text-xs sm:text-sm">
+          <span className="px-3 py-1 rounded-full bg-[#1c1c1f] text-[#86868b] border border-[#262629] font-medium">
             {block?.titleRu || 'AI for LIFE'}
           </span>
-          <span className="text-slate-200 flex items-center gap-1.5 sm:ml-auto text-xs sm:text-sm font-medium">
-            <Clock className="w-4 h-4 text-cyan-400" /> 90 мин ({lesson.theoryDuration}м теор + {lesson.practiceDuration}м практ)
+          <span className="text-[#86868b] flex items-center gap-1.5 sm:ml-auto font-medium">
+            <Clock className="w-3.5 h-3.5 text-[#0071e3]" /> 90 мин ({lesson.theoryDuration}м теор + {lesson.practiceDuration}м практ)
           </span>
         </div>
 
-        <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-white leading-tight">{lesson.titleRu}</h1>
-        <p className="text-slate-300 text-sm sm:text-base font-mono">{lesson.title}</p>
+        <h1 className="text-xl sm:text-3xl font-semibold tracking-tight text-[#f5f5f7] leading-tight">
+          {lesson.titleRu}
+        </h1>
+        <p className="text-xs sm:text-sm text-[#86868b] font-mono">{lesson.title}</p>
 
-        {/* Lesson Reading Progress & EXP tracker */}
-        <div className="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-800/80">
+        {/* Progress & EXP tracker */}
+        <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[#262629]">
           <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-sm sm:text-base">
-              <span className="text-slate-200 font-bold">Прогресс изучения:</span>
-              <span className="text-cyan-400 font-mono font-bold">{completedSectionsCount} / {sectionsToRender.length} ({progressPct}%)</span>
+            <div className="flex items-center gap-2 text-xs">
+              <span className="text-[#86868b]">Прогресс изучения:</span>
+              <span className="text-[#00d959] font-semibold tabular-nums">{completedSectionsCount} / {sectionsToRender.length} ({progressPct}%)</span>
             </div>
-            <div className="w-full sm:w-56 h-2.5 rounded-full bg-slate-950 overflow-hidden border border-slate-800">
+            <div className="w-full sm:w-56 h-1.5 rounded-full bg-[#1c1c1f] overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500"
+                className="h-full bg-[#00d959] transition-all duration-500"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -257,174 +212,150 @@ export const LessonDetailPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsXpModalOpen(true)}
-              className="w-full sm:w-auto justify-center px-4 py-2.5 rounded-xl bg-amber-950/40 hover:bg-amber-950/60 border border-amber-800/40 text-amber-300 text-sm sm:text-base font-bold flex items-center gap-2 transition-all cursor-pointer"
-              title="Открыть детализацию начисления EXP"
+              className="px-4 py-2 rounded-full bg-[#1c1c1f] hover:bg-[#262629] border border-[#333336] text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-amber-400 animate-pulse shrink-0" />
-              <span>Ваш баланс: {stats.totalPoints || profile.totalPoints || 0} EXP</span>
-              <span className="text-xs text-amber-400/90 underline ml-1">Расчёт EXP</span>
+              <Sparkles className="w-3.5 h-3.5 text-[#00d959] shrink-0" />
+              <span>Баланс: <strong className="text-[#00d959] tabular-nums font-semibold">{stats.totalPoints || profile.totalPoints || 0} EXP</strong></span>
             </button>
           </div>
         </div>
 
-        {/* 4-Section EXP Calculation Breakdown Grid */}
-        <div className="pt-3 border-t border-slate-800/60 space-y-2.5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-sm">
-            <span className="font-bold text-slate-100 flex items-center gap-1.5">
-              <Zap className="w-4 h-4 text-amber-400 shrink-0" />
-              <span>Начисление EXP по 4 разделам Урока #{lesson.id}:</span>
+        {/* 4-Section EXP Cards Grid */}
+        <div className="pt-3 border-t border-[#262629] space-y-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+            <span className="font-medium text-[#86868b] flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-[#0071e3] shrink-0" />
+              <span>Начисление EXP по разделам Урока #{lesson.id}:</span>
             </span>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-emerald-400 font-black text-xs sm:text-sm bg-emerald-950/80 border border-emerald-800/60 px-2.5 py-1 rounded-lg">
+            <div className="flex items-center gap-2 tabular-nums">
+              <span className="text-xs font-semibold text-[#00d959] bg-[#1c2e22] px-2.5 py-0.5 rounded-full border border-[#00d959]/30">
                 Заработано: +{totalLessonXp} / 450 EXP
               </span>
-              {lessonBonusXp > 0 ? (
-                <span className="text-xs font-mono text-amber-300 bg-amber-950/80 border border-amber-800/60 px-2.5 py-1 rounded-md font-bold">
+              {lessonBonusXp > 0 && (
+                <span className="text-xs font-medium text-[#f5f5f7] bg-[#1c1c1f] px-2 py-0.5 rounded-full border border-[#333336]">
                   ✓ Бонус +50 EXP
-                </span>
-              ) : (
-                <span className="text-xs font-mono text-slate-300 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-md">
-                  Бонус: +0 / 50 EXP
                 </span>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-sm">
-            {/* 1. Лекция урока */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-xs">
+            {/* 1. Лекция */}
             <div
               onClick={() => handleSectionChange(`sec-${lesson.id}-lecture`)}
-              className={`p-3 rounded-2xl border space-y-1 transition-all cursor-pointer ${
-                isLectureRead ? 'bg-cyan-950/40 border-cyan-500/50 shadow-xs' : 'bg-slate-950/80 border-slate-800 hover:border-slate-700'
+              className={`p-3.5 rounded-[20px] border space-y-1 transition-colors cursor-pointer ${
+                isLectureRead ? 'bg-[#1c2e22] border-[#00d959]/40' : 'bg-[#161618] border-[#262629] hover:border-white/[0.18]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-cyan-400 font-mono">1. ЛЕКЦИЯ УРОКА</span>
-                <span className="text-sm font-black font-mono text-white">
-                  +{lectureXp} / 25 EXP
-                </span>
+                <span className="text-[11px] font-semibold text-[#86868b] uppercase">1. Лекция</span>
+                <span className="text-xs font-semibold tabular-nums text-[#f5f5f7]">+{lectureXp} / 25 EXP</span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-200 font-medium leading-snug">
-                +25 EXP за каждую изученную секцию урока.
+              <p className="text-[11px] text-[#86868b] leading-snug">
+                +25 EXP за изучение секции
               </p>
-              <div className="text-xs text-slate-400 pt-0.5 flex items-center gap-1">
+              <div className="pt-0.5 text-[10px]">
                 {isLectureRead ? (
-                  <span className="text-emerald-400 font-bold flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Секция изучена
+                  <span className="text-[#00d959] font-medium flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3" /> Изучено
                   </span>
                 ) : (
-                  <span className="text-slate-400">• Не изучено (+0 EXP)</span>
+                  <span className="text-[#6e6e73]">Не изучено (+0 EXP)</span>
                 )}
               </div>
             </div>
 
-            {/* 2. Лабораторная работа */}
+            {/* 2. Лабораторная */}
             <div
               onClick={() => handleSectionChange(`sec-${lesson.id}-lab`)}
-              className={`p-3 rounded-2xl border space-y-1 transition-all cursor-pointer ${
-                labXp > 0 || isLabRead ? 'bg-emerald-950/40 border-emerald-500/50 shadow-xs' : 'bg-slate-950/80 border-slate-800 hover:border-slate-700'
+              className={`p-3.5 rounded-[20px] border space-y-1 transition-colors cursor-pointer ${
+                labXp > 0 || isLabRead ? 'bg-[#1c2e22] border-[#00d959]/40' : 'bg-[#161618] border-[#262629] hover:border-white/[0.18]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-emerald-400 font-mono">2. ЛАБОРАТОРНАЯ</span>
-                <span className="text-sm font-black font-mono text-white">
-                  +{(isLabRead ? 25 : 0) + labXp} / 125 EXP
-                </span>
+                <span className="text-[11px] font-semibold text-[#86868b] uppercase">2. Лабораторная</span>
+                <span className="text-xs font-semibold tabular-nums text-[#f5f5f7]">+{(isLabRead ? 25 : 0) + labXp} / 125 EXP</span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-200 font-medium leading-snug">
-                +100 EXP за принятую лабу (100 / 75 / 50 EXP).
+              <p className="text-[11px] text-[#86868b] leading-snug">
+                +100 EXP за принятую лабу
               </p>
-              <div className="text-xs text-slate-300 pt-0.5 flex items-center justify-between">
-                <span>Секция: +{isLabRead ? 25 : 0} EXP</span>
-                <span className={labXp > 0 ? 'text-emerald-400 font-bold' : 'text-slate-400'}>
-                  Лаба: +{labXp} EXP
-                </span>
+              <div className="pt-0.5 text-[10px] flex items-center justify-between text-[#86868b] tabular-nums">
+                <span>Секция: +{isLabRead ? 25 : 0}</span>
+                <span className={labXp > 0 ? 'text-[#00d959] font-medium' : ''}>Лаба: +{labXp}</span>
               </div>
             </div>
 
-            {/* 3. Проверка знаний и тесты */}
+            {/* 3. Тесты */}
             <div
               onClick={() => handleSectionChange(`sec-${lesson.id}-quiz`)}
-              className={`p-3 rounded-2xl border space-y-1 transition-all cursor-pointer ${
-                testXp > 0 || isQuizRead ? 'bg-purple-950/40 border-purple-500/50 shadow-xs' : 'bg-slate-950/80 border-slate-800 hover:border-slate-700'
+              className={`p-3.5 rounded-[20px] border space-y-1 transition-colors cursor-pointer ${
+                testXp > 0 || isQuizRead ? 'bg-[#1c2e22] border-[#00d959]/40' : 'bg-[#161618] border-[#262629] hover:border-white/[0.18]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-purple-400 font-mono">3. ТЕСТЫ & ПРОВЕРКА</span>
-                <span className="text-sm font-black font-mono text-white">
-                  +{(isQuizRead ? 25 : 0) + testXp} / 125 EXP
-                </span>
+                <span className="text-[11px] font-semibold text-[#86868b] uppercase">3. Тесты</span>
+                <span className="text-xs font-semibold tabular-nums text-[#f5f5f7]">+{(isQuizRead ? 25 : 0) + testXp} / 125 EXP</span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-200 font-medium leading-snug">
-                +100 EXP (10/10), +75 EXP (1–3 ош.), +50 EXP (4 ош.).
+              <p className="text-[11px] text-[#86868b] leading-snug">
+                +100 EXP за тест без ошибок
               </p>
-              <div className="text-xs text-slate-300 pt-0.5 flex items-center justify-between">
-                <span>Секция: +{isQuizRead ? 25 : 0} EXP</span>
-                <span className={testXp > 0 ? 'text-purple-300 font-bold' : 'text-slate-400'}>
-                  Тест: +{testXp} EXP
-                </span>
+              <div className="pt-0.5 text-[10px] flex items-center justify-between text-[#86868b] tabular-nums">
+                <span>Секция: +{isQuizRead ? 25 : 0}</span>
+                <span className={testXp > 0 ? 'text-[#00d959] font-medium' : ''}>Тест: +{testXp}</span>
               </div>
             </div>
 
             {/* 4. Домашнее задание */}
             <div
               onClick={() => handleSectionChange(`sec-${lesson.id}-homework`)}
-              className={`p-3 rounded-2xl border space-y-1 transition-all cursor-pointer ${
-                homeworkXp > 0 || isHwRead ? 'bg-amber-950/40 border-amber-500/50 shadow-xs' : 'bg-slate-950/80 border-slate-800 hover:border-slate-700'
+              className={`p-3.5 rounded-[20px] border space-y-1 transition-colors cursor-pointer ${
+                homeworkXp > 0 || isHwRead ? 'bg-[#1c2e22] border-[#00d959]/40' : 'bg-[#161618] border-[#262629] hover:border-white/[0.18]'
               }`}
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-amber-400 font-mono">4. ДОМАШНЕЕ ЗАДАНИЕ</span>
-                <span className="text-sm font-black font-mono text-white">
-                  +{(isHwRead ? 25 : 0) + homeworkXp} / 125 EXP
-                </span>
+                <span className="text-[11px] font-semibold text-[#86868b] uppercase">4. Домашнее</span>
+                <span className="text-xs font-semibold tabular-nums text-[#f5f5f7]">+{(isHwRead ? 25 : 0) + homeworkXp} / 125 EXP</span>
               </div>
-              <p className="text-xs sm:text-sm text-slate-200 font-medium leading-snug">
-                +100 EXP за принятое ДЗ (100 / 75 / 50 EXP).
+              <p className="text-[11px] text-[#86868b] leading-snug">
+                +100 EXP за принятое ДЗ
               </p>
-              <div className="text-xs text-slate-300 pt-0.5 flex items-center justify-between">
-                <span>Секция: +{isHwRead ? 25 : 0} EXP</span>
-                <span className={homeworkXp > 0 ? 'text-amber-300 font-bold' : 'text-slate-400'}>
-                  ДЗ: +{homeworkXp} EXP
-                </span>
+              <div className="pt-0.5 text-[10px] flex items-center justify-between text-[#86868b] tabular-nums">
+                <span>Секция: +{isHwRead ? 25 : 0}</span>
+                <span className={homeworkXp > 0 ? 'text-[#00d959] font-medium' : ''}>ДЗ: +{homeworkXp}</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content Layout — Frameless on mobile so sections have full width */}
-      <div className="space-y-4 sm:space-y-6">
+      {/* Main Content Layout */}
+      <div className="space-y-6">
         <div
           id="lesson-sections-container"
-          className="p-0 sm:p-6 md:p-8 rounded-none sm:rounded-3xl bg-transparent sm:bg-slate-900/90 border-0 sm:border sm:border-slate-800 space-y-4 sm:space-y-6 shadow-none sm:shadow-2xl"
+          className="p-4 sm:p-7 md:p-8 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-6"
         >
-          {/* Section Switcher Header Card */}
-          <div className="p-3.5 sm:p-0 rounded-2xl sm:rounded-none bg-slate-900/90 sm:bg-transparent border border-slate-800 sm:border-0 space-y-3.5 sm:space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3.5">
+          {/* Section Switcher Bar */}
+          <div className="space-y-3.5 pb-4 border-b border-[#262629]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div>
-                <h3 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 text-cyan-400 shrink-0" /> Интерактивный учебный материал урока
+                <h3 className="text-base sm:text-lg font-semibold text-[#f5f5f7] flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-[#0071e3] shrink-0" /> Учебные материалы урока
                 </h3>
-                <p className="text-sm sm:text-base text-slate-300 mt-1">
-                  Переключайте разделы ниже и получайте +25 EXP за каждый изученный блок
+                <p className="text-xs text-[#86868b] mt-0.5">
+                  Переключайте разделы и получайте +25 EXP за каждую изученную секцию
                 </p>
               </div>
-              <span className="text-xs sm:text-sm font-mono font-bold text-cyan-300 bg-cyan-950/80 border border-cyan-800/80 px-3.5 py-1.5 rounded-full w-fit">
+              <span className="text-xs text-[#86868b] bg-[#000000] border border-[#262629] px-3 py-1 rounded-full w-fit tabular-nums">
                 Раздел {sectionsToRender.findIndex((s) => s.id === activeSectionId) + 1} из {sectionsToRender.length}
               </span>
             </div>
 
-            {/* Mobile-optimized Section Switcher Dropdown */}
-            <div className="block md:hidden space-y-1.5">
-              <label className="text-sm font-bold text-slate-300 flex items-center gap-1.5">
-                <Layers className="w-4 h-4 text-cyan-400" />
-                <span>Быстрый выбор раздела урока:</span>
-              </label>
+            {/* Mobile Dropdown */}
+            <div className="block md:hidden">
               <select
                 value={activeSectionId}
                 onChange={(e) => handleSectionChange(e.target.value)}
-                className="w-full px-3.5 py-3 rounded-xl bg-slate-950 border border-cyan-500/40 text-white font-bold text-base focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-3.5 py-2.5 rounded-full bg-[#000000] border border-[#333336] text-[#f5f5f7] font-medium text-xs focus:outline-none focus:border-[#0071e3]"
               >
                 {sectionsToRender.map((sec, idx) => (
                   <option key={sec.id} value={sec.id}>
@@ -434,22 +365,22 @@ export const LessonDetailPage: React.FC = () => {
               </select>
             </div>
 
-            {/* Section Tabs / Navigation Buttons (2x2 grid on mobile, flex on desktop) */}
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3">
+            {/* Section Tabs: Apple Selector Chips */}
+            <div className="hidden md:flex flex-wrap items-center gap-2">
               {sectionsToRender.map((sec, idx) => (
                 <button
                   key={sec.id}
                   onClick={() => handleSectionChange(sec.id)}
-                  className={`px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-sm sm:text-base font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                  className={`px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer ${
                     activeSectionId === sec.id
-                      ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30 ring-2 ring-cyan-300/50'
-                      : 'bg-slate-800 text-slate-200 hover:bg-slate-700 hover:text-white border border-slate-700'
+                      ? 'bg-[#0071e3] text-white font-semibold'
+                      : 'bg-[#000000] text-[#86868b] hover:text-[#f5f5f7] border border-[#262629]'
                   }`}
                 >
                   {isSectionCompleted(sec.id) ? (
-                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#00d959] shrink-0" />
                   ) : (
-                    <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-950 text-slate-200 text-xs sm:text-sm flex items-center justify-center font-mono shrink-0">
+                    <span className="w-4 h-4 rounded-full bg-[#1c1c1f] text-[#86868b] text-[10px] flex items-center justify-center tabular-nums shrink-0">
                       {idx + 1}
                     </span>
                   )}
@@ -459,7 +390,7 @@ export const LessonDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Active Section Content — No outer frame on mobile! */}
+          {/* Active Section Content */}
           {sectionsToRender.map((sec, currentSecIndex) => {
             const isCurrent = sec.id === activeSectionId;
             const isRead = isSectionCompleted(sec.id);
@@ -467,94 +398,47 @@ export const LessonDetailPage: React.FC = () => {
             return (
               <div
                 key={sec.id}
-                className={`space-y-4 sm:space-y-6 transition-all ${
-                  isCurrent ? 'block' : 'hidden'
-                }`}
+                className={`space-y-6 ${isCurrent ? 'block' : 'hidden'}`}
               >
                 {/* Section Header & Mark Read Banner */}
-                <div className="p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-950/95 border border-slate-800 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                <div className="p-4 sm:p-5 rounded-[24px] bg-[#000000] border border-[#262629] space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1c1c1f] pb-3">
                     <div>
-                      <h3 className="text-xl sm:text-2xl font-black text-white leading-snug">{sec.title}</h3>
-                      <p className="text-sm sm:text-base text-slate-300 mt-1 leading-relaxed">{sec.subtitle}</p>
+                      <h3 className="text-base sm:text-lg font-semibold text-[#f5f5f7]">{sec.title}</h3>
+                      <p className="text-xs text-[#86868b] mt-0.5">{sec.subtitle}</p>
                     </div>
 
                     <button
                       onClick={() => markSectionRead(sec.id, sec.exp)}
                       disabled={isRead}
-                      className={`px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl sm:rounded-2xl text-sm sm:text-base font-bold flex items-center justify-center gap-2 transition-all shrink-0 w-full sm:w-fit ${
+                      className={`px-4 py-2 rounded-full text-xs font-medium flex items-center justify-center gap-2 transition-colors shrink-0 cursor-pointer ${
                         isRead
-                          ? 'bg-emerald-950 text-emerald-300 border border-emerald-800/60'
-                          : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-lg shadow-amber-500/25 active:scale-95'
+                          ? 'bg-[#1c2e22] text-[#00d959] border border-[#00d959]/30'
+                          : 'bg-[#0071e3] hover:bg-[#0077ed] text-white'
                       }`}
                     >
                       {isRead ? (
                         <>
-                          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                          <CheckCircle2 className="w-4 h-4 text-[#00d959] shrink-0" />
                           <span>Изучено (+{sec.exp} EXP)</span>
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-5 h-5 shrink-0" />
+                          <Sparkles className="w-4 h-4 shrink-0" />
                           <span>Отметить изученным (+{sec.exp} EXP)</span>
                         </>
                       )}
                     </button>
                   </div>
-
-                  {/* Active Section Dedicated EXP Banner */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
-                    <div className="flex items-start sm:items-center gap-2.5">
-                      <span className="p-2 rounded-xl bg-cyan-950 text-cyan-400 border border-cyan-800/60 shrink-0 mt-0.5 sm:mt-0">
-                        <Zap className="w-4 h-4" />
-                      </span>
-                      <div>
-                        <span className="font-bold text-slate-100 block text-sm sm:text-base">
-                          {sec.id.includes('lecture') && '1. Лекция урока: +25 EXP за изучение секции'}
-                          {sec.id.includes('lab') && '2. Лабораторная работа: +25 EXP за секцию + до 100 EXP за лабу'}
-                          {sec.id.includes('quiz') && '3. Проверка знаний и тесты: +25 EXP за секцию + до 100 EXP за тест'}
-                          {sec.id.includes('homework') && '4. Домашнее задание: +25 EXP за секцию + до 100 EXP за принятое ДЗ'}
-                        </span>
-                        <p className="text-xs sm:text-sm text-slate-300 mt-0.5 leading-relaxed">
-                          {sec.id.includes('lecture') && 'Изучите теоретический материал урока. Завершение всех 4 секций начисляет бонус +50 EXP.'}
-                          {sec.id.includes('lab') && 'Выполните лабораторную практику, прикрепите отчет и отправьте ментору.'}
-                          {sec.id.includes('quiz') && 'Ответьте на вопросы теста урока. Ошибки снижают награду: 100 / 75 / 50 EXP.'}
-                          {sec.id.includes('homework') && 'Сдайте проектное ДЗ ментору. За принятое задание начисляется до 100 EXP.'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 font-mono font-bold text-xs sm:text-sm shrink-0">
-                      {sec.id.includes('lecture') && (
-                        <span className={isLectureRead ? 'text-emerald-300 bg-emerald-950/80 px-3 py-1.5 rounded-xl border border-emerald-800/60' : 'text-slate-300 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800'}>
-                          {isLectureRead ? '+25 / 25 EXP ✓' : '+0 / 25 EXP'}
-                        </span>
-                      )}
-                      {sec.id.includes('lab') && (
-                        <span className={labXp > 0 || isLabRead ? 'text-emerald-300 bg-emerald-950/80 px-3 py-1.5 rounded-xl border border-emerald-800/60' : 'text-slate-300 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800'}>
-                          +{(isLabRead ? 25 : 0) + labXp} / 125 EXP
-                        </span>
-                      )}
-                      {sec.id.includes('quiz') && (
-                        <span className={testXp > 0 || isQuizRead ? 'text-purple-300 bg-purple-950/80 px-3 py-1.5 rounded-xl border border-purple-800/60' : 'text-slate-300 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800'}>
-                          +{(isQuizRead ? 25 : 0) + testXp} / 125 EXP
-                        </span>
-                      )}
-                      {sec.id.includes('homework') && (
-                        <span className={homeworkXp > 0 || isHwRead ? 'text-amber-300 bg-amber-950/80 px-3 py-1.5 rounded-xl border border-amber-800/60' : 'text-slate-300 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800'}>
-                          +{(isHwRead ? 25 : 0) + homeworkXp} / 125 EXP
-                        </span>
-                      )}
-                    </div>
-                  </div>
                 </div>
 
-                {/* Actual Section Content — Full width on mobile, larger readable text */}
-                <div className="lesson-content-reader text-base sm:text-lg text-slate-100 leading-relaxed w-full">
+                {/* Actual Section Content */}
+                <div className="lesson-content-reader text-sm sm:text-base text-[#f5f5f7] leading-relaxed w-full">
                   {sec.content}
                 </div>
 
-                {/* In-Section Switching Navigation Bar */}
-                <div className="p-3.5 sm:p-5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                {/* In-Section Navigation */}
+                <div className="p-4 rounded-[24px] bg-[#000000] border border-[#262629] flex flex-wrap items-center justify-between gap-3">
                   <button
                     disabled={currentSecIndex <= 0}
                     onClick={() => {
@@ -562,13 +446,13 @@ export const LessonDetailPage: React.FC = () => {
                         handleSectionChange(sectionsToRender[currentSecIndex - 1].id);
                       }
                     }}
-                    className="px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-slate-100 text-sm sm:text-base font-bold flex items-center gap-2 transition-all border border-slate-700"
+                    className="px-4 py-2 rounded-full bg-[#1c1c1f] hover:bg-[#262629] disabled:opacity-30 text-[#f5f5f7] text-xs font-medium flex items-center gap-2 transition-colors border border-[#333336] cursor-pointer"
                   >
-                    <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span>Предыдущий Раздел</span>
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Предыдущий раздел</span>
                   </button>
 
-                  <span className="text-sm sm:text-base text-slate-300 font-mono font-bold">
+                  <span className="text-xs text-[#86868b] tabular-nums font-medium">
                     Раздел {currentSecIndex + 1} из {sectionsToRender.length}
                   </span>
 
@@ -577,28 +461,26 @@ export const LessonDetailPage: React.FC = () => {
                       onClick={() => {
                         handleSectionChange(sectionsToRender[currentSecIndex + 1].id);
                       }}
-                      className="px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm sm:text-base font-bold flex items-center gap-2 transition-all shadow-md shadow-cyan-600/20"
+                      className="px-4 py-2 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer"
                     >
-                      <span>Следующий Раздел</span>
-                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span>Следующий раздел</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   ) : (
                     <button
                       onClick={() => toggleLessonCompletion(lesson.id)}
-                      className={`px-4 py-2.5 sm:px-5 sm:py-3 rounded-xl sm:rounded-2xl text-white text-sm sm:text-base font-bold flex items-center gap-2 transition-all shadow-md ${
+                      className={`px-4 py-2 rounded-full text-white text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer ${
                         isHwApprovedByMentor
-                          ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20'
-                          : isHwSubmitted
-                          ? 'bg-amber-600 hover:bg-amber-500 shadow-amber-600/20'
-                          : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/20'
+                          ? 'bg-[#00d959] text-black font-semibold'
+                          : 'bg-[#0071e3] hover:bg-[#0077ed]'
                       }`}
                     >
-                      <CheckCircle2 className="w-5 h-5 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
                       <span>
                         {isHwApprovedByMentor
-                          ? `Урок #${lesson.id} Пройден (ДЗ подтверждено)`
+                          ? `Урок #${lesson.id} завершён`
                           : isHwSubmitted
-                          ? `ДЗ на проверке у Ментора (Урок #${Math.min(24, lesson.id + 1)})`
+                          ? `ДЗ отправлено ментору`
                           : `Завершить Урок #${lesson.id}`}
                       </span>
                     </button>
@@ -609,55 +491,25 @@ export const LessonDetailPage: React.FC = () => {
           })}
         </div>
 
-        {/* Bottom Navigation Toolbar: Prev Lesson | Section Switcher | Next Lesson */}
-        <div className="p-3.5 sm:p-6 rounded-2xl sm:rounded-3xl bg-slate-900/90 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
+        {/* Bottom Navigation Toolbar */}
+        <div className="p-4 sm:p-5 rounded-[28px] bg-[#161618] border border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-4">
           {lesson.id > 1 ? (
             <button
               onClick={() => {
                 setSelectedLessonId(lesson.id - 1);
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="w-full md:w-auto px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all border border-slate-700 shadow-md shrink-0"
+              className="px-4 py-2 rounded-full bg-[#000000] hover:bg-[#1c1c1f] text-[#f5f5f7] font-medium text-xs flex items-center justify-center gap-2 transition-colors border border-[#262629] cursor-pointer"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Предыдущий Урок #{lesson.id - 1}</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Урок #{lesson.id - 1}</span>
             </button>
           ) : (
             <div className="hidden md:block" />
           )}
 
-          {/* Section Switcher Toolbar */}
-          <div className="w-full md:w-auto flex flex-col sm:flex-row items-center justify-center gap-2 p-2.5 sm:p-3 rounded-2xl bg-slate-950 border border-slate-800">
-            <span className="text-sm font-bold text-cyan-400 px-1 flex items-center gap-1.5 shrink-0">
-              <Layers className="w-4 h-4 text-cyan-400" />
-              <span>Разделы урока:</span>
-            </span>
-            <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center gap-1.5 w-full sm:w-auto">
-              {sectionsToRender.map((sec, idx) => (
-                <button
-                  key={sec.id}
-                  onClick={() => {
-                    setActiveSectionId(sec.id);
-                    const elem = document.getElementById('lesson-sections-container');
-                    if (elem) elem.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all ${
-                    activeSectionId === sec.id
-                      ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30 ring-1 ring-cyan-400/40'
-                      : 'bg-slate-800 text-slate-200 hover:bg-slate-700 border border-slate-700'
-                  }`}
-                >
-                  {isSectionCompleted(sec.id) ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  ) : (
-                    <span className="w-4 h-4 rounded-full bg-slate-900 text-slate-300 text-xs flex items-center justify-center font-mono">
-                      {idx + 1}
-                    </span>
-                  )}
-                  <span>Раздел {idx + 1}</span>
-                </button>
-              ))}
-            </div>
+          <div className="flex items-center gap-2 text-xs text-[#86868b]">
+            <span>Урок {lesson.id} из {lessons.length}</span>
           </div>
 
           {lesson.id < lessons.length ? (
@@ -667,20 +519,17 @@ export const LessonDetailPage: React.FC = () => {
                   setSelectedLessonId(lesson.id + 1);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="w-full md:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all shadow-lg shadow-cyan-600/30 shrink-0"
+                className="px-4 py-2 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
-                <span>Следующий Урок #{lesson.id + 1}</span>
-                <ChevronRight className="w-4 h-4" />
+                <span>Урок #{lesson.id + 1}</span>
+                <ChevronRight className="w-3.5 h-3.5" />
               </button>
             ) : (
               <button
                 disabled
-                title="Следующий урок откроется автоматически после подтверждения ДЗ ментором"
-                className="w-full md:w-auto px-5 py-3 rounded-2xl bg-slate-800 text-slate-300 font-bold text-sm flex items-center justify-center gap-2 border border-slate-700 cursor-not-allowed opacity-80 shrink-0"
+                className="px-4 py-2 rounded-full bg-[#000000] text-[#6e6e73] font-medium text-xs flex items-center justify-center gap-2 border border-[#262629] cursor-not-allowed opacity-60"
               >
-                <span>
-                  Урок #{lesson.id + 1} Заблокирован (после подтверждения ДЗ)
-                </span>
+                <span>Урок #{lesson.id + 1} закрыт</span>
               </button>
             )
           ) : (

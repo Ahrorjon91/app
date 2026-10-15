@@ -5,11 +5,8 @@ import {
   FlaskConical,
   Search,
   CheckCircle2,
-  Clock,
   Terminal,
   Play,
-  Check,
-  Award,
   Lock
 } from 'lucide-react';
 
@@ -28,27 +25,27 @@ export const LabsPage: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="space-y-6 text-[#f5f5f7]">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#262629] pb-5">
         <div>
-          <h1 className="text-2xl font-extrabold text-white flex items-center gap-2">
-            <FlaskConical className="w-6 h-6 text-emerald-400" /> Виртуальные Лабораторные Работы (24 Лабы)
+          <h1 className="text-xl sm:text-2xl font-semibold text-[#f5f5f7] flex items-center gap-2">
+            <FlaskConical className="w-5 h-5 text-[#00d959]" /> Практические Лабораторные Работы (24 Лабы)
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Интерактивный CLI Симулятор Терминала Linux & Windows PowerShell
+          <p className="text-xs text-[#86868b] mt-1">
+            Интерактивный симулятор терминала Linux, веб-разработки и AI-агентов
           </p>
         </div>
 
-        {/* Search */}
+        {/* Search Input: Apple Pill Style */}
         <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#86868b]" />
           <input
             type="text"
             placeholder="Поиск лабораторий..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500"
+            className="bg-white/[0.04] border border-[#333336] rounded-full pl-10 pr-4 py-2 text-xs text-[#f5f5f7] placeholder-[#86868b] focus:outline-none focus:border-[#0071e3] transition-colors"
           />
         </div>
       </div>
@@ -58,7 +55,7 @@ export const LabsPage: React.FC = () => {
         <select
           value={selectedBlockId}
           onChange={(e) => setSelectedBlockId(e.target.value === 'all' ? 'all' : Number(e.target.value))}
-          className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-emerald-500 shadow-sm"
+          className="w-full bg-[#1c1c1f] border border-[#333336] rounded-full px-4 py-2.5 text-xs font-medium text-[#f5f5f7] focus:outline-none focus:border-[#0071e3]"
         >
           <option value="all">Все 24 Лабы (Все 6 Блоков)</option>
           {COURSE_BLOCKS.map((block) => (
@@ -69,14 +66,14 @@ export const LabsPage: React.FC = () => {
         </select>
       </div>
 
-      {/* Block Tabs */}
-      <div className="flex flex-wrap items-center gap-2 text-xs">
+      {/* Block Tabs: Apple Selector Chips */}
+      <div className="hidden sm:flex flex-wrap items-center gap-2 text-xs">
         <button
           onClick={() => setSelectedBlockId('all')}
-          className={`px-3.5 sm:px-4 py-2 rounded-xl font-semibold transition-all whitespace-nowrap shrink-0 ${
+          className={`px-4 py-1.5 rounded-full font-medium transition-colors cursor-pointer ${
             selectedBlockId === 'all'
-              ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-              : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+              ? 'bg-[#f5f5f7] text-[#1d1d1f]'
+              : 'bg-[#000000] border border-[#262629] text-[#86868b] hover:text-[#f5f5f7]'
           }`}
         >
           Все 24 Лабы
@@ -85,10 +82,10 @@ export const LabsPage: React.FC = () => {
           <button
             key={block.id}
             onClick={() => setSelectedBlockId(block.id)}
-            className={`px-3 sm:px-3.5 py-2 rounded-xl font-semibold transition-all whitespace-nowrap flex items-center gap-1.5 shrink-0 ${
+            className={`px-3.5 py-1.5 rounded-full font-medium transition-colors flex items-center gap-1.5 cursor-pointer ${
               selectedBlockId === block.id
-                ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/20'
-                : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                ? 'bg-[#f5f5f7] text-[#1d1d1f]'
+                : 'bg-[#000000] border border-[#262629] text-[#86868b] hover:text-[#f5f5f7]'
             }`}
           >
             <span>Блок {block.id}</span>
@@ -116,64 +113,64 @@ export const LabsPage: React.FC = () => {
           return (
             <div
               key={lab.id}
-              className={`p-5 rounded-3xl border transition-all flex flex-col justify-between space-y-4 group hover:shadow-xl ${
+              className={`p-5 rounded-[28px] border transition-colors flex flex-col justify-between space-y-4 group ${
                 unlocked
                   ? isCompletedByMe
-                    ? 'bg-slate-900/90 border-slate-800/80 hover:border-emerald-500/40'
-                    : 'bg-slate-900/90 border-slate-800 hover:border-cyan-500/40'
-                  : 'bg-slate-900/40 border-slate-800/50 opacity-60'
+                    ? 'bg-[#161618] border-[#00d959]/30 hover:border-[#00d959]/60'
+                    : 'bg-[#161618] border-white/[0.08] hover:border-white/[0.18]'
+                  : 'bg-[#0a0a0b] border-[#1c1c1f] opacity-55'
               }`}
             >
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-1 rounded-lg bg-emerald-950 text-emerald-400 text-[10px] font-bold font-mono border border-emerald-800/40">
-                    ЛАБА #{lab.id} • {lab.estimatedMinutes} мин
+                <div className="flex items-center justify-between text-xs">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#000000] text-[#00d959] text-[10px] font-medium font-mono border border-[#262629]">
+                    ЛАБА #{lab.id} · {lab.estimatedMinutes} мин
                   </span>
                   {unlocked ? (
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
                         lab.difficulty === 'Hard'
-                          ? 'bg-rose-950 text-rose-300 border border-rose-800/40'
+                          ? 'bg-[#311400] text-[#ff791b]'
                           : lab.difficulty === 'Medium'
-                          ? 'bg-amber-950 text-amber-300 border border-amber-800/40'
-                          : 'bg-emerald-950 text-emerald-300 border border-emerald-800/40'
+                          ? 'bg-[#2a2415] text-[#f59e0b]'
+                          : 'bg-[#1c2e22] text-[#00d959]'
                       }`}
                     >
                       {lab.difficulty}
                     </span>
                   ) : (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 flex items-center gap-1">
-                      <Lock className="w-3 h-3 text-slate-400" /> Заблокировано
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#1c1c1f] text-[#6e6e73] flex items-center gap-1">
+                      <Lock className="w-3 h-3 text-[#6e6e73]" /> Закрыта
                     </span>
                   )}
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">
+                  <h3 className="text-sm font-semibold text-[#f5f5f7] leading-snug">
                     {lab.title}
                   </h3>
                 </div>
 
-                <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">{lab.scenario}</p>
+                <p className="text-xs text-[#86868b] line-clamp-2 leading-relaxed">{lab.scenario}</p>
 
-                {/* Task completion progress bar */}
+                {/* Progress bar */}
                 <div className="space-y-1 pt-1">
-                  <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono">
+                  <div className="flex justify-between items-center text-[10px] text-[#86868b] font-mono tabular-nums">
                     <span>Задачи: {completedTasksCount}/{totalTasks}</span>
-                    <span className="text-emerald-400 font-bold">{pct}%</span>
+                    <span className="text-[#00d959] font-medium">{pct}%</span>
                   </div>
-                  <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                  <div className="w-full bg-[#1c1c1f] h-1.5 rounded-full overflow-hidden">
                     <div
-                      className="bg-emerald-400 h-full transition-all duration-500"
+                      className="bg-[#00d959] h-full rounded-full transition-all duration-500"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
-                <span className="text-xs text-slate-400 font-mono flex items-center gap-1">
-                  <Terminal className="w-3.5 h-3.5 text-emerald-400" /> CLI Ready
+              <div className="pt-3 border-t border-[#262629] flex items-center justify-between">
+                <span className="text-xs text-[#86868b] font-mono flex items-center gap-1">
+                  <Terminal className="w-3.5 h-3.5 text-[#0071e3]" /> CLI Ready
                 </span>
                 {unlocked ? (
                   <button
@@ -181,18 +178,18 @@ export const LabsPage: React.FC = () => {
                       setSelectedLabId(lab.id);
                       setActivePage('lab-detail');
                     }}
-                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-all flex items-center gap-1.5 shadow-md shadow-emerald-600/20"
+                    className="px-4 py-1.5 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
-                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <Play className="w-3 h-3 fill-current" />
                     <span>{isCompletedByMe ? 'Повторить' : 'Запустить'}</span>
                   </button>
                 ) : (
                   <button
                     disabled
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 text-slate-500 font-bold text-xs flex items-center gap-1.5 cursor-not-allowed border border-slate-700/60"
+                    className="px-3.5 py-1.5 rounded-full bg-[#1c1c1f] text-[#6e6e73] text-xs font-medium flex items-center gap-1.5 cursor-not-allowed"
                   >
-                    <Lock className="w-3.5 h-3.5" />
-                    <span>Заблокировано (Урок #{lab.id})</span>
+                    <Lock className="w-3 h-3" />
+                    <span>Закрыта</span>
                   </button>
                 )}
               </div>
