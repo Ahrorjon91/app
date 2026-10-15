@@ -1,48 +1,10 @@
 # Инструкция по экспорту и развертыванию на VPS (Frontend + Backend + SQLite)
 
-Данное руководство описывает развертывание приложения **DevOps Academy Student Portal** на вашем VPS (Ubuntu 22.04 / 24.04 или Debian) через **Dokploy**, **Docker Compose**, **Node.js PM2**, **Nginx** или **Apache**.
+Данное руководство описывает развертывание приложения **DevOps Academy Student Portal** на вашем VPS (Ubuntu 22.04 / 24.04 или Debian).
 
----
-
-## 🚀 Решение ошибки «405 Method Not Allowed» в Dokploy (Hostinger VPS)
-
-Если при авторизации на домене `https://ai.devopspro.tech/` вы получаете:
-```text
-Request URL: https://ai.devopspro.tech/ai/api/auth/login
-Request method: POST
-Status code: 405 Method Not Allowed
-```
-
-### Причины ошибки:
-1. **Главная причина (Dokploy "Static" mode)**: В Dokploy проект был добавлен с типом **Static** (статический сайт Nginx). Статический сервер Nginx отдает HTML/JS, но серверная часть Node.js/Express (`server.ts`) **вообще не запускается**. Когда браузер отправляет `POST /api/auth/login`, Nginx на статических файлах не поддерживает метод POST и возвращает `405 Method Not Allowed`.
-2. **Неверный порт в Dokploy**: Сервер слушает порт `3000`. Если в Dokploy указан порт `80` или `3002`, трафик не доходит до Express.
-3. **Путь API (`/ai/api` vs `/api`)**: Префикс `/ai/api` использовался для подпапок. Теперь приложение автоматически определяет домен: на `ai.devopspro.tech` запросы идут на `/api/auth/login`, а в случае ответа 405/404 автоматически переключается между `/api` и `/ai/api`.
-
----
-
-### Пошаговое исправление в панели Dokploy:
-
-1. **Откройте Dokploy**: перейдите в ваш проект и выберите приложение (Application).
-2. **Вкладка General**:
-   - **Build Type**: выберите **`Dockerfile`** (в коде уже создан готовый `Dockerfile`) или **`Nixpacks`**. *Ни в коем случае не выбирайте `Static`!*
-   - Если выбран **Dockerfile**: Dokploy автоматически соберет проект через `Dockerfile`, выполнит `npm run build` и запустит сервер `server.ts`.
-3. **Вкладка Environment Variables**:
-   Добавьте переменные:
-   ```env
-   NODE_ENV=production
-   PORT=3000
-   VITE_API_BASE_PATH=/api
-   ```
-4. **Вкладка Domains (Traefik)**:
-   - **Host**: `ai.devopspro.tech`
-   - **Port**: `3000` *(обязательно укажите 3000, не 80!)*
-   - **Path**: оставьте пустым или укажите `/`
-   - **HTTPS / SSL**: включите Let's Encrypt сертификат.
-5. **Вкладка Volumes (Сохранение базы SQLite)**:
-   Добавьте том для сохранения базы данных при перезапусках:
-   - **Host Path**: `devops_academy_data` (или `/var/lib/dokploy/volumes/devops_academy_data`)
-   - **Container Path**: `/app/data`
-6. Нажмите **Deploy** (или **Redeploy**).
+> **Сетевая конфигурация (Port 3002)**:  
+> База данных SQLite, REST API и веб-интерфейс запущены на порту **3002**.  
+> Проксирование Nginx и правила фаервола настраиваются для порта **3002**.
 
 ---
 

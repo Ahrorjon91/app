@@ -271,92 +271,92 @@ export const LabDetailPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setActivePage('lesson-detail')}
-            className="flex items-center gap-2 text-xs sm:text-sm font-medium text-[#f5f5f7] hover:text-white transition-colors bg-[#161618] px-4 py-2 rounded-xl border border-white/[0.08]"
+            className="flex items-center gap-2 text-xs sm:text-sm font-bold text-cyan-400 hover:text-cyan-300 transition-colors bg-slate-900 px-4 py-2 rounded-xl border border-slate-800"
           >
-            <ArrowLeft className="w-4 h-4 text-[#86868b]" />
+            <ArrowLeft className="w-4 h-4" />
             <span>Вернуться к Уроку</span>
           </button>
           <button
             onClick={() => setActivePage('labs')}
-            className="hidden sm:flex items-center gap-2 text-xs font-medium text-[#86868b] hover:text-[#f5f5f7] transition-colors"
+            className="hidden sm:flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
           >
             <span>К списку лаб</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <a
             href="https://t.me/aivioratj"
             target="_blank"
             rel="noopener noreferrer"
-            className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-[#f5f5f7] text-xs font-medium border border-white/[0.08] flex items-center gap-2 transition-colors"
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 flex items-center gap-2"
           >
-            <Send className="w-4 h-4 text-[#0071e3]" />
+            <Send className="w-4 h-4 text-blue-400" />
             <span>Менеджер в Telegram</span>
           </a>
           <button
             onClick={handleFinishLab}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors active:scale-95 shadow-sm ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold border flex items-center gap-2 transition-all ${
               submissionStatus === 'Approved'
-                ? 'bg-[#002a14] text-[#30d158] border border-[#30d158]/40'
-                : 'bg-[#0071e3] hover:bg-[#0077ed] text-white'
+                ? 'bg-emerald-950 text-emerald-300 border-emerald-800/60'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-white border-transparent shadow-md shadow-emerald-600/20'
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>
               {submissionStatus === 'Approved'
                 ? `✓ Подтверждено Ментором (+${lab.score && lab.score >= 88 ? 100 : lab.score && lab.score >= 63 ? 75 : lab.score && lab.score > 0 ? 50 : 100} EXP)`
-                : 'Отметить шаги (50 / 75 / 100 EXP)'}
+                : 'Отметить шаги (50 / 75 / 100 EXP после проверки)'}
             </span>
           </button>
         </div>
       </div>
 
       {/* Hero Header */}
-      <div className="p-6 sm:p-8 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-4">
-        <div className="flex flex-wrap items-center gap-2.5 text-xs">
-          <span className="px-3 py-1 rounded-full bg-[#002a14] text-[#30d158] border border-[#30d158]/40 font-mono tabular-nums font-semibold">
+      <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 space-y-4 shadow-xl">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="px-3 py-1 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800/60 font-mono font-bold">
             ЛАБОРАТОРНАЯ #{lab.id}
           </span>
-          <span className="px-3 py-1 rounded-full bg-white/[0.06] text-[#86868b] border border-white/[0.08] font-medium">
+          <span className="px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700 font-semibold">
             {lab.difficulty} Difficulty
           </span>
 
           {submissionStatus === 'Approved' ? (
-            <span className="px-3 py-1 rounded-full bg-[#002a14] text-[#30d158] border border-[#30d158]/40 font-semibold flex items-center gap-1.5 ml-auto">
+            <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold flex items-center gap-1.5 ml-auto">
               <ShieldCheck className="w-3.5 h-3.5" /> Подтверждено Ментором (+{lab.score && lab.score >= 88 ? 100 : lab.score && lab.score >= 63 ? 75 : lab.score && lab.score > 0 ? 50 : 100} EXP)
             </span>
           ) : submissionStatus === 'Under Review' || submissionStatus === 'Submitted' ? (
-            <span className="px-3 py-1 rounded-full bg-[#311400] text-[#ff791a] border border-[#ff791a]/40 font-semibold flex items-center gap-1.5 ml-auto">
-              <Clock className="w-3.5 h-3.5" /> На проверке у Ментора
+            <span className="px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold flex items-center gap-1.5 ml-auto animate-pulse">
+              <Clock className="w-3.5 h-3.5" /> На проверке у Ментора (оценка: 50 / 75 / 100 EXP)
             </span>
           ) : (
-            <span className="text-[#86868b] flex items-center gap-1 ml-auto font-mono tabular-nums">
+            <span className="text-slate-400 flex items-center gap-1 ml-auto">
               <Clock className="w-4 h-4" /> ~{lab.estimatedMinutes} минут
             </span>
           )}
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-semibold text-[#f5f5f7] tracking-tight">{lab.titleRu || lab.title}</h1>
-        <p className="text-sm text-[#86868b] leading-relaxed max-w-4xl">{lab.scenarioRu || lab.scenario}</p>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-white">{lab.titleRu || lab.title}</h1>
+        <p className="text-slate-300 text-xs md:text-sm leading-relaxed max-w-4xl">{lab.scenarioRu || lab.scenario}</p>
 
         {lab.wowMoment && (
-          <div className="p-4 rounded-2xl bg-[#311400]/40 border border-[#ff791a]/30 text-[#ff791a] text-xs sm:text-sm flex items-start gap-3">
-            <Zap className="w-5 h-5 text-[#ff791a] shrink-0 mt-0.5" />
+          <div className="p-4 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-amber-200 text-xs md:text-sm flex items-start gap-3 shadow-lg">
+            <Zap className="w-5 h-5 text-amber-400 shrink-0 mt-0.5 animate-pulse" />
             <div>
-              <span className="font-semibold text-[#ff791a] mr-2">⚡ WOW-момент:</span>
-              <span className="text-[#f5f5f7]">{lab.wowMoment}</span>
+              <span className="font-extrabold text-amber-300 mr-2">⚡ WOW-момент:</span>
+              <span>{lab.wowMoment}</span>
             </div>
           </div>
         )}
 
         {/* System Specs Badge */}
-        <div className="pt-2 flex flex-wrap gap-4 text-xs font-mono tabular-nums text-[#86868b] border-t border-white/[0.08]">
+        <div className="pt-2 flex flex-wrap gap-4 text-xs font-mono text-slate-400 border-t border-slate-800/80">
           <span className="flex items-center gap-1.5">
-            <Server className="w-4 h-4 text-[#0071e3]" /> Host: devops-node-01.academy
+            <Server className="w-4 h-4 text-cyan-400" /> Host: devops-node-01.academy
           </span>
           <span className="flex items-center gap-1.5">
-            <Cpu className="w-4 h-4 text-[#bf5af2]" /> OS: Ubuntu 24.04 LTS
+            <Cpu className="w-4 h-4 text-purple-400" /> OS: Ubuntu 24.04 LTS
           </span>
         </div>
       </div>

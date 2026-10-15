@@ -174,7 +174,6 @@ async function startServer() {
     const distPath = path.resolve(__dirname, 'dist');
     if (distExists) {
       app.use(express.static(distPath));
-      app.use('/ai', express.static(distPath));
       // Catch-all SPA fallback compatible with Express 4 and Express 5 (avoids path-to-regexp '*' error)
       app.use((_req, res) => {
         res.sendFile(path.join(distPath, 'index.html'));

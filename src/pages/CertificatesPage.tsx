@@ -572,21 +572,22 @@ export const CertificatesPage: React.FC = () => {
 
       {/* Mentor Control Bar (Only for Admins/Mentors) */}
       {isMentor && (
-        <div className="relative overflow-hidden p-4 rounded-[28px] bg-[#161618] border border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="relative overflow-hidden p-4 rounded-2xl bg-[#050b1a] border border-purple-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-[0_0_35px_rgba(168,85,247,0.15)]">
+          <div className="absolute -right-10 -top-10 w-44 h-44 bg-purple-600/15 rounded-full blur-3xl pointer-events-none" />
           <div className="flex items-center gap-3 relative z-10">
-            <div className="p-2.5 rounded-full bg-[#000000] text-[#0071e3] border border-[#262629]">
-              <ShieldAlert className="w-4 h-4" />
+            <div className="p-2.5 rounded-xl bg-purple-500/15 text-purple-300 border border-purple-500/40 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+              <ShieldAlert className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-semibold text-[#f5f5f7] flex items-center gap-2">
+              <div className="text-xs font-extrabold text-white flex items-center gap-2">
                 <span>Центр Управления Сертификацией DEVOPS Academy</span>
-                <span className="text-[#86868b]">·</span>
-                <span className="text-[#0071e3] text-[10px] font-mono font-medium uppercase tracking-wider">
-                  MENTOR ROOT
+                <span className="text-slate-600">·</span>
+                <span className="text-purple-300 text-[10px] font-mono font-bold uppercase tracking-wider">
+                  ROOT MENTOR NODE
                 </span>
               </div>
-              <p className="text-[11px] text-[#86868b]">
-                Верификация дипломов курса {DEFAULT_AI_COURSE_TITLE} и реестр выпускников
+              <p className="text-[11px] text-slate-400">
+                Верификация дипломов курса {DEFAULT_AI_COURSE_TITLE}, реестр выпускников и настройка голографического бланка
               </p>
             </div>
           </div>
@@ -594,20 +595,20 @@ export const CertificatesPage: React.FC = () => {
           <div className="flex items-center gap-2 relative z-10">
             <button
               onClick={() => setPreviewAsStudent(!previewAsStudent)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors flex items-center gap-1.5 border whitespace-nowrap cursor-pointer ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border whitespace-nowrap ${
                 previewAsStudent
-                  ? 'bg-[#0071e3] text-white border-[#0071e3]'
-                  : 'bg-[#1c1c1f] hover:bg-[#262629] text-[#86868b] hover:text-[#f5f5f7] border-[#333336]'
+                  ? 'bg-cyan-500 text-slate-950 border-cyan-400 font-extrabold shadow-[0_0_20px_rgba(6,182,212,0.4)]'
+                  : 'bg-[#091328] hover:bg-[#0f1f40] text-cyan-300 border-cyan-500/30'
               }`}
             >
-              <Eye className="w-3.5 h-3.5" />
+              <Eye className="w-4 h-4" />
               <span>{previewAsStudent ? 'Режим Наставника' : 'Экран Студента'}</span>
             </button>
             <button
               onClick={() => setShowMentorSettings(!showMentorSettings)}
-              className="px-3.5 py-1.5 rounded-full bg-[#1c1c1f] hover:bg-[#262629] text-[#86868b] hover:text-[#f5f5f7] border border-[#333336] text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap cursor-pointer"
+              className="px-3.5 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 border border-purple-500/40 text-xs font-bold flex items-center gap-1.5 transition-all whitespace-nowrap"
             >
-              <Settings className="w-3.5 h-3.5" />
+              <Settings className="w-4 h-4" />
               <span>{showMentorSettings ? 'Скрыть параметры' : 'Параметры бланка'}</span>
             </button>
           </div>
@@ -616,63 +617,81 @@ export const CertificatesPage: React.FC = () => {
 
       {/* Confirmation notification message */}
       {confirmStatusMsg && (
-        <div className="p-3.5 rounded-[20px] bg-[#1c2e22] border border-[#00d959]/30 text-[#00d959] text-xs font-medium flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-[#00d959] shrink-0" />
+        <div className="p-3.5 rounded-2xl bg-[#041a17] border border-cyan-400/50 text-cyan-300 text-xs font-bold flex items-center gap-2 shadow-[0_0_25px_rgba(6,182,212,0.2)] animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
           <span>{confirmStatusMsg}</span>
         </div>
       )}
 
       {/* ========================================================================= */}
-      {/* APPLE MIDNIGHT HERO BANNER                                                */}
+      {/* FUTURISTIC CYBERPUNK ENTERPRISE HERO BANNER                               */}
       {/* ========================================================================= */}
-      <div className="relative overflow-hidden p-6 md:p-8 rounded-[28px] bg-[#000000] border border-white/[0.08]">
+      <div className="relative overflow-hidden p-6 md:p-8 rounded-3xl bg-[#030712] border border-cyan-500/35 shadow-[0_0_60px_rgba(6,182,212,0.12)]">
+        {/* Volumetric Lighting & Transport Grid */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 bg-cyan-500/15 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-purple-600/15 rounded-full blur-[100px] pointer-events-none" />
+        <div
+          className="absolute inset-0 opacity-[0.12] pointer-events-none"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(6, 182, 212, 0.25) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(6, 182, 212, 0.25) 1px, transparent 1px)
+            `,
+            backgroundSize: '32px 32px'
+          }}
+        />
+
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-3 max-w-3xl">
-            <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-[#86868b] uppercase tracking-wider">
-              <Cpu className="w-3.5 h-3.5 text-[#0071e3]" />
-              <span className="text-[#f5f5f7]">DEVOPS ACADEMY</span>
-              <span>·</span>
-              <span>ОФИЦИАЛЬНОЕ СВИДЕТЕЛЬСТВО О КВАЛИФИКАЦИИ</span>
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-cyan-400 uppercase tracking-widest">
+              <Cpu className="w-4 h-4 text-cyan-400" />
+              <span>DEVOPS ACADEMY</span>
+              <span className="text-slate-600">·</span>
+              <span className="text-purple-400">ОФИЦИАЛЬНОЕ СВИДЕТЕЛЬСТВО О КВАЛИФИКАЦИИ</span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-[#f5f5f7] tracking-tight leading-tight">
-              Сертификат Выпускника DEVOPS Academy
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+              Сертификат Выпускника{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-purple-400">
+                DEVOPS Academy
+              </span>
             </h1>
 
-            <p className="text-xs sm:text-sm text-[#86868b] leading-relaxed">
-              Персональный академический диплом по программе{' '}
-              <strong className="text-[#f5f5f7]">{DEFAULT_AI_COURSE_TITLE}</strong>.
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Персональный голографический диплом по программе{' '}
+              <strong className="text-cyan-300">{DEFAULT_AI_COURSE_TITLE}</strong>.
               ИИ-инженерия нового поколения · Вайб-кодинг · Автономные агенты. Поддерживает прямую верификацию по{' '}
-              <span className="text-[#f5f5f7] font-mono">Credential ID</span> и{' '}
-              <span className="text-[#f5f5f7] font-mono">Credential URL</span> по стандарту Coursera для публикации в LinkedIn.
+              <span className="text-white font-mono">Credential ID</span> и{' '}
+              <span className="text-white font-mono">Credential URL</span> по стандарту Coursera для публикации в{' '}
+              <span className="text-cyan-300 font-semibold">www.linkedin.com</span>.
             </p>
           </div>
 
           {/* Right Telemetry Status Panel */}
           <div className="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0">
             <div
-              className={`p-4 rounded-[20px] border flex items-center gap-3.5 ${
+              className={`p-4 rounded-2xl border backdrop-blur-md flex items-center gap-3.5 ${
                 isCertificateUnlocked
-                  ? 'bg-[#161618] border-[#00d959]/30'
-                  : 'bg-[#161618] border-[#ff791b]/30'
+                  ? 'bg-[#051622]/90 border-cyan-400/50 shadow-[0_0_25px_rgba(6,182,212,0.25)]'
+                  : 'bg-[#140711]/90 border-rose-500/45 shadow-[0_0_25px_rgba(244,63,94,0.2)]'
               }`}
             >
               <div
-                className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
+                className={`w-11 h-11 rounded-xl flex items-center justify-center border shrink-0 ${
                   isCertificateUnlocked
-                    ? 'bg-[#1c2e22] text-[#00d959]'
-                    : 'bg-[#311400] text-[#ff791b]'
+                    ? 'bg-cyan-500/15 border-cyan-400/40 text-cyan-400'
+                    : 'bg-rose-500/15 border-rose-500/40 text-rose-400'
                 }`}
               >
-                {isCertificateUnlocked ? <ShieldCheck className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
+                {isCertificateUnlocked ? <ShieldCheck className="w-6 h-6" /> : <Lock className="w-6 h-6" />}
               </div>
               <div>
-                <div className="text-[10px] font-mono uppercase tracking-wider text-[#86868b]">
-                  СТАТУС ВЕРИФИКАЦИИ
+                <div className="text-[10px] font-mono uppercase tracking-widest text-slate-400">
+                  СТАТУС ВЕРИФИКАЦИИ ДИПЛОМА
                 </div>
                 <div
-                  className={`text-xs font-semibold font-mono tracking-wide ${
-                    isCertificateUnlocked ? 'text-[#00d959]' : 'text-[#ff791b]'
+                  className={`text-xs sm:text-sm font-black font-mono tracking-wide ${
+                    isCertificateUnlocked ? 'text-cyan-300' : 'text-rose-400'
                   }`}
                 >
                   {isCertificateUnlocked
@@ -682,11 +701,11 @@ export const CertificatesPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Credential ID Strip */}
+            {/* Credential ID Strip (only for mentors or unlocked certificates) */}
             {(effectiveIsMentor || isCertificateUnlocked) && (
-              <div className="px-4 py-2 rounded-full bg-[#161618] border border-white/[0.08] flex items-center justify-between gap-4 text-[11px] font-mono">
-                <span className="text-[#86868b]">CREDENTIAL ID:</span>
-                <span className="text-[#0071e3] font-semibold tabular-nums">{verificationCode}</span>
+              <div className="px-4 py-2.5 rounded-xl bg-[#070e20]/90 border border-slate-800/90 flex items-center justify-between gap-4 text-[11px] font-mono">
+                <span className="text-slate-400">CREDENTIAL ID:</span>
+                <span className="text-cyan-300 font-bold tabular-nums">{verificationCode}</span>
               </div>
             )}
           </div>
@@ -697,18 +716,23 @@ export const CertificatesPage: React.FC = () => {
       {/* COURSERA-STYLE CREDENTIAL ID / URL & LINKEDIN INTEGRATION PANEL           */}
       {/* ========================================================================= */}
       {effectiveIsMentor && (
-      <div className="p-6 md:p-8 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-6">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#262629] pb-5">
+      <div className="relative overflow-hidden p-6 md:p-8 rounded-3xl bg-[#040918] border border-cyan-500/35 shadow-[0_0_50px_rgba(6,182,212,0.1)] space-y-6">
+        <div className="absolute -top-20 right-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-[90px] pointer-events-none" />
+        <div className="absolute -bottom-20 left-10 w-72 h-72 bg-purple-600/10 rounded-full blur-[90px] pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800/90 pb-5">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-[11px] font-mono text-[#0071e3] uppercase tracking-wider">
-              <Award className="w-3.5 h-3.5" />
-              <span>CREDENTIAL STANDARD · LINKEDIN</span>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-cyan-400 uppercase tracking-widest">
+              <Award className="w-4 h-4 text-cyan-400" />
+              <span>COURSERA CREDENTIAL STANDARD · LINKEDIN CERTIFICATION</span>
             </div>
-            <h2 className="text-base sm:text-lg font-semibold text-[#f5f5f7]">
-              Верификация Credential ID / URL и добавление в LinkedIn
+            <h2 className="text-lg sm:text-xl font-black text-white">
+              Верификация Credential ID / URL и добавление сертификата в LinkedIn (www.linkedin.com)
             </h2>
-            <p className="text-xs text-[#86868b] max-w-3xl">
-              Скопируйте реквизиты или используйте быстрый импорт в профиль LinkedIn.
+            <p className="text-xs text-slate-400 max-w-3xl">
+              Скопируйте готовые реквизиты ниже или нажмите кнопку быстрого импорта, чтобы добавить сертификат в раздел{' '}
+              <strong className="text-slate-200">«Лицензии и сертификаты» (Licenses &amp; Certifications)</strong> вашего профиля на{' '}
+              <span className="text-cyan-300 font-mono">www.linkedin.com</span>.
             </p>
           </div>
 
@@ -716,11 +740,11 @@ export const CertificatesPage: React.FC = () => {
             href={linkedInAddCertificationUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-5 py-2.5 rounded-full bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-xs flex items-center justify-center gap-2 transition-colors shrink-0"
+            className="px-5 py-3 rounded-2xl bg-gradient-to-r from-[#0A66C2] via-blue-600 to-cyan-500 hover:from-[#004182] hover:to-cyan-400 text-white font-extrabold text-xs flex items-center justify-center gap-2.5 shadow-[0_0_30px_rgba(10,102,194,0.45)] border border-cyan-400/40 transition-all shrink-0 whitespace-nowrap"
           >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>Добавить в профиль LinkedIn</span>
-            <ExternalLink className="w-3 h-3" />
+            <Share2 className="w-4 h-4" />
+            <span>Добавить в профиль LinkedIn (www.linkedin.com)</span>
+            <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
 

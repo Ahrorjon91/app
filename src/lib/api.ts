@@ -85,18 +85,7 @@ export function getApiBasePath(): string {
     const trimmed = envPath.trim().replace(/\/+$/, '');
     return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
   }
-  // Auto-detect based on current window location
-  if (typeof window !== 'undefined') {
-    const path = window.location.pathname || '';
-    if (path.startsWith('/ai/') || path === '/ai') {
-      return '/ai/api';
-    }
-    if (path.startsWith('/admin/') || path === '/admin') {
-      return '/admin/api';
-    }
-  }
-  // Standard default for standalone domain deployments (e.g. ai.devopspro.tech)
-  return '/api';
+  return '/ai/api';
 }
 
 export function getBackendApiUrl(): string {
@@ -123,7 +112,6 @@ export function isRetriableError(errStr: string): boolean {
     lower.includes('abort') ||
     lower.includes('timeout') ||
     lower.includes('404') ||
-    lower.includes('405') ||
     lower.includes('502') ||
     lower.includes('503') ||
     lower.includes('504')
@@ -270,16 +258,12 @@ export async function apiRequest<T = any>(
   const runRequest = async (): Promise<ApiResponse<T>> => {
     const executeAttempt = async (attempt: number): Promise<ApiResponse<T>> => {
       try {
-        const activeBasePath = (() => {
-          if (attempt === 1) return primaryBasePath;
-          if (attempt === 2) {
-            return primaryBasePath === '/api' ? '/ai/api' : '/api';
-          }
-          if (attempt === 3) {
-            return '/admin/api';
-          }
-          return primaryBasePath;
-        })();
+        const activeBasePath =
+          attempt === 2 && primaryBasePath !== '/api'
+            ? '/api'
+            : attempt === 3 && primaryBasePath !== '/admin/api'
+            ? '/admin/api'
+            : primaryBasePath;
         const endpointPath = buildEndpointPath(activeBasePath);
         let response: Response;
 
@@ -338,8 +322,8 @@ export async function apiRequest<T = any>(
         }
 
         if (!response.ok) {
-          if ((response.status >= 500 || response.status === 404 || response.status === 405) && attempt <= retryCount) {
-            await new Promise((res) => setTimeout(res, 350 * attempt));
+          if ((response.status >= 500 || response.status === 404) && attempt <= retryCount) {
+            await new Promise((res) => setTimeout(res, 400 * attempt));
             return executeAttempt(attempt + 1);
           }
           const errText = await response.text();

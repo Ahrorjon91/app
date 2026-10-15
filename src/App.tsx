@@ -45,7 +45,7 @@ const PortalApp: React.FC = () => {
   // If not authenticated or on login page, display login
   if (!profile.isAuthenticated || activePage === 'login') {
     return (
-      <div className="min-h-screen bg-[#000000] text-[#f5f5f7] flex flex-col justify-center items-center relative overflow-hidden">
+      <div className="min-h-screen bg-[#0B0D13] text-slate-100 flex flex-col justify-center items-center relative overflow-hidden">
         <CyberBackground />
         <LoginPage />
       </div>
@@ -102,7 +102,7 @@ const PortalApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#000000] text-[#f5f5f7] flex flex-col relative overflow-x-hidden selection:bg-[#0071e3] selection:text-white">
+    <div className="min-h-screen bg-[#0B0D13] text-slate-100 flex flex-col relative overflow-x-hidden selection:bg-cyan-500/30 selection:text-cyan-200">
       <CyberBackground />
 
       {/* Main Sidebar Navigation */}

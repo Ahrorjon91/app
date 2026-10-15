@@ -1,8 +1,0 @@
-node_modules
-dist
-.git
-.env
-data/*.sqlite*
-data/*.db*
-uploads/*
-npm-debug.log*

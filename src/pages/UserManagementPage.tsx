@@ -263,27 +263,27 @@ export const UserManagementPage: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Header Banner */}
-      <div className="p-6 sm:p-8 rounded-[28px] bg-[#161618] border border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-5">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] text-[#ff791a] text-xs font-semibold tracking-wide mb-3 border border-white/[0.08]">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold mb-1">
             <ShieldCheck className="w-3.5 h-3.5" /> Раздел Администратора
           </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-[#f5f5f7] tracking-tight flex items-center gap-2.5">
-            <Users className="w-7 h-7 text-[#0071e3]" /> Управление Пользователями и Ролями
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+            <Users className="w-6 h-6 text-blue-500" /> Управление Пользователями и Ролями
           </h1>
-          <p className="text-sm text-[#86868b] mt-1.5 max-w-2xl">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Создание учетных записей, распределение ролей (admin / student), контроль доступа (Lock / Unlock) и прямая синхронизация с Google Sheets (doGET / doPOST)
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2 md:gap-3">
           <button
             onClick={() => setIsGroupsModalOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-[#f5f5f7] font-medium text-xs border border-white/[0.08] flex items-center gap-2 transition-colors active:scale-95"
+            className="px-3.5 py-2.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 font-bold text-xs border border-purple-500/20 flex items-center gap-2 transition-all"
             title="Управление учебными группами"
           >
-            <FolderPlus className="w-4 h-4 text-[#86868b]" />
+            <FolderPlus className="w-4 h-4" />
             <span>Группы ({allAvailableGroups.length})</span>
           </button>
 
@@ -293,7 +293,7 @@ export const UserManagementPage: React.FC = () => {
               setCustomGroupName('');
               setIsModalOpen(true);
             }}
-            className="px-4 py-2.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-xs shadow-sm flex items-center gap-2 transition-colors active:scale-95"
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-lg shadow-blue-500/20 flex items-center gap-2 transition-all"
           >
             <UserPlus className="w-4 h-4" />
             <span>Добавить Пользователя</span>
@@ -303,70 +303,70 @@ export const UserManagementPage: React.FC = () => {
 
       {/* Toast Notification */}
       {notification && (
-        <div className="p-4 rounded-2xl bg-[#002a14] border border-[#30d158]/40 text-[#30d158] text-xs font-semibold flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 text-[#30d158]" />
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           <span>{notification}</span>
         </div>
       )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-        <div className="p-5 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-1">
-          <span className="text-xs font-medium text-[#86868b]">Всего аккаунтов</span>
-          <p className="text-2xl font-semibold font-mono tabular-nums text-[#f5f5f7]">{userAccounts.length}</p>
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#14141B] border border-slate-200 dark:border-white/5 space-y-1">
+          <span className="text-xs font-semibold text-slate-500">Всего аккаунтов</span>
+          <p className="text-2xl font-black text-slate-900 dark:text-white">{userAccounts.length}</p>
         </div>
 
-        <div className="p-5 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-1">
-          <span className="text-xs font-medium text-[#86868b]">Администраторы</span>
-          <p className="text-2xl font-semibold font-mono tabular-nums text-[#0071e3]">
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#14141B] border border-slate-200 dark:border-white/5 space-y-1">
+          <span className="text-xs font-semibold text-slate-500">Администраторы</span>
+          <p className="text-2xl font-black text-indigo-500">
             {userAccounts.filter((u) => u.role === 'admin').length}
           </p>
         </div>
 
-        <div className="p-5 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-1">
-          <span className="text-xs font-medium text-[#86868b]">Активные Студенты</span>
-          <p className="text-2xl font-semibold font-mono tabular-nums text-[#30d158]">
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#14141B] border border-slate-200 dark:border-white/5 space-y-1">
+          <span className="text-xs font-semibold text-slate-500">Активные Студенты</span>
+          <p className="text-2xl font-black text-emerald-500">
             {userAccounts.filter((u) => u.role === 'student' && u.status === 'Active').length}
           </p>
         </div>
 
-        <div className="p-5 rounded-[28px] bg-[#161618] border border-[#ff791a]/30 space-y-1">
-          <span className="text-xs font-semibold text-[#ff791a] flex items-center gap-1.5">
+        <div className="p-5 rounded-3xl bg-white dark:bg-[#14141B] border border-amber-500/30 bg-amber-500/5 space-y-1">
+          <span className="text-xs font-bold text-amber-500 flex items-center gap-1">
             <UserCheck className="w-3.5 h-3.5" /> Ожидают Подтверждения
           </span>
-          <p className="text-2xl font-semibold font-mono tabular-nums text-[#ff791a]">
+          <p className="text-2xl font-black text-amber-500">
             {userAccounts.filter((u) => u.status === 'Pending').length}
           </p>
         </div>
       </div>
 
       {/* Filter and Search controls */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-[#161618] p-4 rounded-2xl border border-white/[0.08]">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white dark:bg-[#14141B] p-4 rounded-2xl border border-slate-200 dark:border-white/5">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 flex-1">
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86868b]" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               placeholder="Поиск по имени, email или группе..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#1c1c1e] border border-white/[0.12] rounded-xl pl-9 pr-3 py-2 text-xs text-[#f5f5f7] placeholder-[#86868b] focus:outline-none focus:border-[#0071e3]"
+              className="w-full bg-slate-50 dark:bg-[#0D0D12] border border-slate-200 dark:border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
             />
           </div>
 
           {/* Group filter dropdown */}
-          <div className="flex items-center gap-2 bg-[#1c1c1e] border border-white/[0.12] rounded-xl px-3 py-1.5 text-xs">
-            <Tag className="w-3.5 h-3.5 text-[#86868b] shrink-0" />
+          <div className="flex items-center gap-2 bg-slate-50 dark:bg-[#0D0D12] border border-slate-200 dark:border-white/10 rounded-xl px-3 py-1.5 text-xs">
+            <Tag className="w-3.5 h-3.5 text-purple-500 shrink-0" />
             <select
               value={filterGroup}
               onChange={(e) => setFilterGroup(e.target.value)}
-              className="bg-transparent border-none text-xs font-medium text-[#f5f5f7] focus:outline-none cursor-pointer max-w-[200px]"
+              className="bg-transparent border-none text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer max-w-[200px]"
             >
-              <option value="all" className="bg-[#1c1c1e] text-[#f5f5f7]">Все Группы ({userAccounts.length})</option>
+              <option value="all">Все Группы ({userAccounts.length})</option>
               {allAvailableGroups.map((g) => {
                 const count = userAccounts.filter((u) => (u.group || 'Группа 1 (Август 2026)') === g).length;
                 return (
-                  <option key={g} value={g} className="bg-[#1c1c1e] text-[#f5f5f7]">
+                  <option key={g} value={g}>
                     {g} ({count})
                   </option>
                 );
@@ -375,33 +375,33 @@ export const UserManagementPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto text-xs font-medium">
+        <div className="flex items-center gap-2 overflow-x-auto text-xs">
           <button
             onClick={() => setFilterRole('all')}
-            className={`px-3.5 py-1.5 rounded-xl transition-colors ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
               filterRole === 'all'
-                ? 'bg-[#0071e3] text-white font-semibold'
-                : 'bg-white/[0.06] text-[#86868b] hover:text-[#f5f5f7]'
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
             }`}
           >
             Все Роли
           </button>
           <button
             onClick={() => setFilterRole('admin')}
-            className={`px-3.5 py-1.5 rounded-xl transition-colors ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
               filterRole === 'admin'
-                ? 'bg-[#0071e3] text-white font-semibold'
-                : 'bg-white/[0.06] text-[#86868b] hover:text-[#f5f5f7]'
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
             }`}
           >
             Администраторы
           </button>
           <button
             onClick={() => setFilterRole('student')}
-            className={`px-3.5 py-1.5 rounded-xl transition-colors ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition-all ${
               filterRole === 'student'
-                ? 'bg-[#0071e3] text-white font-semibold'
-                : 'bg-white/[0.06] text-[#86868b] hover:text-[#f5f5f7]'
+                ? 'bg-blue-600 text-white'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
             }`}
           >
             Студенты
@@ -410,7 +410,7 @@ export const UserManagementPage: React.FC = () => {
       </div>
 
       {/* Users Table */}
-      <div className="bg-[#161618] border border-white/[0.08] rounded-[28px] overflow-hidden">
+      <div className="bg-white dark:bg-[#14141B] border border-slate-200 dark:border-white/10 rounded-3xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>

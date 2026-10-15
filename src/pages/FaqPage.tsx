@@ -6,12 +6,15 @@ import {
   ChevronUp,
   Search,
   BookOpen,
+  Terminal,
   Award,
   Database,
   HelpCircle,
   Send,
   CheckCircle2,
   FileText,
+  Clock,
+  Sparkles,
   ExternalLink,
   Laptop
 } from 'lucide-react';
@@ -70,30 +73,32 @@ export const FaqPage: React.FC = () => {
   const activeHandbook = HANDBOOK_SECTIONS.find((h) => h.id === activeHandbookTab) || HANDBOOK_SECTIONS[0];
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-300 pb-16">
-      {/* Header Hero Banner */}
-      <div className="p-6 sm:p-8 rounded-[28px] bg-[#161618] border border-white/[0.08] flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-2 max-w-3xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/[0.08] text-[#ff791a] text-xs font-semibold tracking-wide">
-            <ShieldCheck className="w-3.5 h-3.5" />
+    <div className="w-full space-y-8 animate-in fade-in duration-300 pb-16">
+      {/* Full-Width Header Hero Banner */}
+      <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="space-y-3 z-10 max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold">
+            <Sparkles className="w-3.5 h-3.5" />
             База Знаний & Поддержка Студентов
           </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-[#f5f5f7] tracking-tight flex items-center gap-2.5">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+            <ShieldCheck className="w-7 h-7 text-cyan-400 shrink-0" />
             Часто задаваемые вопросы (FAQ & Support)
           </h1>
-          <p className="text-sm text-[#86868b] leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
             Ответы на организационные и технические вопросы курса: регламент сдачи лабораторных работ,
-            начисление баллов, выдача именного сертификата и работа с базой данных.
+            начисление баллов, выдача именного сертификата и работа с локальной базой данных SQLite.
           </p>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-3 z-10 shrink-0">
           <a
             id="faq-telegram-contact-btn"
             href="https://t.me/aivioratj"
             target="_blank"
             rel="noreferrer"
-            className="px-5 py-2.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white font-medium text-xs flex items-center gap-2 shadow-sm transition-colors active:scale-95"
+            className="px-5 py-3 rounded-2xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-cyan-600/25 transition-all"
           >
             <Send className="w-4 h-4" />
             <span>Написать в Telegram</span>
@@ -101,7 +106,7 @@ export const FaqPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 Pillars Summary Cards */}
+      {/* 4 Pillars Summary Cards (Full Screen 4-Column Grid) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
         {/* Card 1: Study Process */}
         <div
@@ -109,29 +114,29 @@ export const FaqPage: React.FC = () => {
             setSelectedCategory('all');
             setSearchQuery('урок');
           }}
-          className="p-5 rounded-[28px] bg-[#161618] border border-white/[0.08] hover:border-white/20 transition-colors cursor-pointer group flex flex-col justify-between"
+          className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all cursor-pointer group shadow-xl relative overflow-hidden flex flex-col justify-between"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-2xl bg-white/[0.06] border border-white/[0.08] text-[#0071e3] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <BookOpen className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-semibold text-[#86868b] font-mono tabular-nums uppercase bg-white/[0.06] px-2 py-0.5 rounded-full border border-white/[0.08]">
+              <span className="text-[10px] font-bold text-cyan-400 font-mono uppercase bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-800/40">
                 12 Недель
               </span>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#f5f5f7] group-hover:text-[#0071e3] transition-colors">
+              <h3 className="text-sm font-bold text-white group-hover:text-cyan-300 transition-colors">
                 Учебный Процесс
               </h3>
-              <p className="text-xs text-[#86868b] mt-1 leading-relaxed">
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 24 интенсивных занятия, очный формат (2 раза в неделю по 90 мин) и сквозной финальный проект.
               </p>
             </div>
           </div>
-          <div className="pt-4 border-t border-white/[0.06] mt-3 flex items-center justify-between text-[11px] text-[#86868b]">
-            <span className="font-mono tabular-nums">24 Урока</span>
-            <span className="text-[#0071e3]">Подробнее →</span>
+          <div className="pt-4 border-t border-slate-800/80 mt-3 flex items-center justify-between text-[11px] text-slate-500">
+            <span>24 Урока</span>
+            <span className="text-cyan-400 group-hover:translate-x-1 transition-transform">Подробнее →</span>
           </div>
         </div>
 
@@ -141,29 +146,29 @@ export const FaqPage: React.FC = () => {
             setSelectedCategory('all');
             setSearchQuery('ПК');
           }}
-          className="p-5 rounded-[28px] bg-[#161618] border border-white/[0.08] hover:border-white/20 transition-colors cursor-pointer group flex flex-col justify-between"
+          className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-indigo-500/40 transition-all cursor-pointer group shadow-xl relative overflow-hidden flex flex-col justify-between"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-2xl bg-white/[0.06] border border-white/[0.08] text-[#30d158] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Laptop className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-semibold text-[#86868b] font-mono tabular-nums uppercase bg-white/[0.06] px-2 py-0.5 rounded-full border border-white/[0.08]">
+              <span className="text-[10px] font-bold text-indigo-400 font-mono uppercase bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-800/40">
                 8 GB RAM+
               </span>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#f5f5f7] group-hover:text-[#30d158] transition-colors">
+              <h3 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors">
                 Лаборатории & Стенды
               </h3>
-              <p className="text-xs text-[#86868b] mt-1 leading-relaxed">
-                24 практических стенда: Cursor IDE, Google AI Studio, терминал Linux/Bash и веб-приложения.
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                24 виртуальных стенда: VirtualBox, Packet Tracer и встроенный веб-симулятор терминала Linux/Bash.
               </p>
             </div>
           </div>
-          <div className="pt-4 border-t border-white/[0.06] mt-3 flex items-center justify-between text-[11px] text-[#86868b]">
-            <span className="font-mono tabular-nums">24 Лабораторные</span>
-            <span className="text-[#30d158]">Подробнее →</span>
+          <div className="pt-4 border-t border-slate-800/80 mt-3 flex items-center justify-between text-[11px] text-slate-500">
+            <span>24 Лабораторные</span>
+            <span className="text-indigo-400 group-hover:translate-x-1 transition-transform">Подробнее →</span>
           </div>
         </div>
 
@@ -173,29 +178,29 @@ export const FaqPage: React.FC = () => {
             setSelectedCategory('all');
             setSearchQuery('сертификат');
           }}
-          className="p-5 rounded-[28px] bg-[#161618] border border-white/[0.08] hover:border-white/20 transition-colors cursor-pointer group flex flex-col justify-between"
+          className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/40 transition-all cursor-pointer group shadow-xl relative overflow-hidden flex flex-col justify-between"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-2xl bg-white/[0.06] border border-white/[0.08] text-[#ff791a] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Award className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-semibold text-[#86868b] font-mono tabular-nums uppercase bg-white/[0.06] px-2 py-0.5 rounded-full border border-white/[0.08]">
-                Порог 85%
+              <span className="text-[10px] font-bold text-emerald-400 font-mono uppercase bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
+                Порог 60%
               </span>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#f5f5f7] group-hover:text-[#ff791a] transition-colors">
+              <h3 className="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors">
                 Оценки & Сертификация
               </h3>
-              <p className="text-xs text-[#86868b] mt-1 leading-relaxed">
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 Именной диплом AI for LIFE Academy с защищенным QR-кодом для проверки работодателями в реестре.
               </p>
             </div>
           </div>
-          <div className="pt-4 border-t border-white/[0.06] mt-3 flex items-center justify-between text-[11px] text-[#86868b]">
+          <div className="pt-4 border-t border-slate-800/80 mt-3 flex items-center justify-between text-[11px] text-slate-500">
             <span>QR-верификация</span>
-            <span className="text-[#ff791a]">Подробнее →</span>
+            <span className="text-emerald-400 group-hover:translate-x-1 transition-transform">Подробнее →</span>
           </div>
         </div>
 
@@ -205,50 +210,50 @@ export const FaqPage: React.FC = () => {
             setSelectedCategory('all');
             setSearchQuery('база');
           }}
-          className="p-5 rounded-[28px] bg-[#161618] border border-white/[0.08] hover:border-white/20 transition-colors cursor-pointer group flex flex-col justify-between"
+          className="p-5 rounded-3xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 transition-all cursor-pointer group shadow-xl relative overflow-hidden flex flex-col justify-between"
         >
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="w-10 h-10 rounded-2xl bg-white/[0.06] border border-white/[0.08] text-[#bf5af2] flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
                 <Database className="w-5 h-5" />
               </div>
-              <span className="text-[10px] font-semibold text-[#86868b] font-mono tabular-nums uppercase bg-white/[0.06] px-2 py-0.5 rounded-full border border-white/[0.08]">
+              <span className="text-[10px] font-bold text-amber-400 font-mono uppercase bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
                 SQLite ACID
               </span>
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#f5f5f7] group-hover:text-[#bf5af2] transition-colors">
+              <h3 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors">
                 База Данных & Портал
               </h3>
-              <p className="text-xs text-[#86868b] mt-1 leading-relaxed">
+              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                 Все отчеты, файлы и прогресс сохраняются в локальной реляционной БД SQLite с возможностью выгрузки.
               </p>
             </div>
           </div>
-          <div className="pt-4 border-t border-white/[0.06] mt-3 flex items-center justify-between text-[11px] text-[#86868b]">
+          <div className="pt-4 border-t border-slate-800/80 mt-3 flex items-center justify-between text-[11px] text-slate-500">
             <span>Автономно</span>
-            <span className="text-[#bf5af2]">Подробнее →</span>
+            <span className="text-amber-400 group-hover:translate-x-1 transition-transform">Подробнее →</span>
           </div>
         </div>
       </div>
 
       {/* Interactive FAQ Search & Filter Bar */}
       <div className="space-y-4 w-full">
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-4 rounded-2xl bg-[#161618] border border-white/[0.08]">
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 p-4 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-xl">
           {/* Search Input */}
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#86868b] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Поиск по вопросам и ответам базы знаний..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-[#1c1c1e] border border-white/[0.12] text-xs text-[#f5f5f7] placeholder-[#86868b] focus:outline-none focus:border-[#0071e3] transition-colors"
+              className="w-full pl-11 pr-4 py-2.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition-colors"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#86868b] hover:text-[#f5f5f7] px-1.5 py-0.5 rounded-md hover:bg-white/[0.06]"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white px-1.5 py-0.5 rounded-md hover:bg-slate-800"
               >
                 Очистить
               </button>
@@ -256,13 +261,13 @@ export const FaqPage: React.FC = () => {
           </div>
 
           {/* Category Chips */}
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setSelectedCategory('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors ${
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                 selectedCategory === 'all'
-                  ? 'bg-[#0071e3] text-white font-semibold'
-                  : 'bg-white/[0.06] text-[#86868b] hover:text-[#f5f5f7]'
+                  ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/25'
+                  : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white'
               }`}
             >
               Все вопросы ({faqItems.length})
@@ -271,10 +276,10 @@ export const FaqPage: React.FC = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                   selectedCategory === cat
-                    ? 'bg-[#0071e3] text-white font-semibold'
-                    : 'bg-white/[0.06] text-[#86868b] hover:text-[#f5f5f7]'
+                    ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/25'
+                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white'
                 }`}
               >
                 {cat}
@@ -283,18 +288,18 @@ export const FaqPage: React.FC = () => {
           </div>
         </div>
 
-        {/* FAQ Accordion List */}
+        {/* FAQ Accordion List (Full Width Grid) */}
         {filteredFaqs.length === 0 ? (
-          <div className="p-12 text-center rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-3 w-full">
-            <HelpCircle className="w-10 h-10 text-[#86868b] mx-auto" />
-            <p className="text-sm font-semibold text-[#f5f5f7]">По вашему запросу ничего не найдено</p>
-            <p className="text-xs text-[#86868b]">Попробуйте изменить формулировку запроса или сбросить фильтр категорий.</p>
+          <div className="p-12 text-center rounded-3xl bg-slate-900/60 border border-slate-800 space-y-3 w-full">
+            <HelpCircle className="w-10 h-10 text-slate-600 mx-auto" />
+            <p className="text-sm font-bold text-slate-300">По вашему запросу ничего не найдено</p>
+            <p className="text-xs text-slate-500">Попробуйте изменить формулировку запроса или сбросить фильтр категорий.</p>
             <button
               onClick={() => {
                 setSearchQuery('');
                 setSelectedCategory('all');
               }}
-              className="px-4 py-2 rounded-xl bg-white/[0.06] text-xs text-[#0071e3] font-medium hover:bg-white/[0.1] transition-colors"
+              className="px-4 py-2 rounded-xl bg-slate-800 text-xs text-cyan-400 font-bold hover:bg-slate-700 transition-colors"
             >
               Показать все вопросы
             </button>
@@ -306,35 +311,35 @@ export const FaqPage: React.FC = () => {
               return (
                 <div
                   key={item.id}
-                  className={`p-5 rounded-[28px] border transition-colors flex flex-col justify-between ${
+                  className={`p-5 rounded-3xl border transition-all duration-200 flex flex-col justify-between ${
                     isOpen
-                      ? 'bg-[#161618] border-white/20'
-                      : 'bg-[#161618] border-white/[0.08] hover:border-white/15'
+                      ? 'bg-slate-900 border-cyan-500/50 shadow-xl shadow-cyan-950/20'
+                      : 'bg-slate-900/80 border-slate-800 hover:border-slate-700'
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between gap-2 mb-2.5">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold font-mono tabular-nums bg-white/[0.06] text-[#86868b] border border-white/[0.08]">
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-cyan-950/80 text-cyan-300 border border-cyan-800/40">
                         {item.category || 'FAQ'}
                       </span>
                     </div>
 
                     <button
                       onClick={() => setOpenId(isOpen ? null : item.id)}
-                      className="w-full text-left flex items-start justify-between gap-3 font-semibold text-sm text-[#f5f5f7] hover:text-white transition-colors"
+                      className="w-full text-left flex items-start justify-between gap-3 font-bold text-sm sm:text-base text-white hover:text-cyan-300 transition-colors"
                     >
                       <span className="leading-snug">{item.question}</span>
-                      <div className="p-1 rounded-xl bg-white/[0.06] shrink-0 mt-0.5">
+                      <div className="p-1 rounded-xl bg-slate-800/80 shrink-0 mt-0.5">
                         {isOpen ? (
-                          <ChevronUp className="w-4 h-4 text-[#f5f5f7]" />
+                          <ChevronUp className="w-4 h-4 text-cyan-400" />
                         ) : (
-                          <ChevronDown className="w-4 h-4 text-[#86868b]" />
+                          <ChevronDown className="w-4 h-4 text-slate-400" />
                         )}
                       </div>
                     </button>
 
                     {isOpen && (
-                      <div className="text-xs sm:text-sm text-[#86868b] leading-relaxed pt-3 mt-3 border-t border-white/[0.06] animate-in fade-in space-y-2">
+                      <div className="text-xs sm:text-sm text-slate-300 leading-relaxed pt-3 mt-3 border-t border-slate-800/80 animate-in fade-in space-y-2">
                         <p>{item.answer}</p>
                       </div>
                     )}
@@ -346,29 +351,29 @@ export const FaqPage: React.FC = () => {
         )}
       </div>
 
-      {/* Official Academy Student Handbook */}
-      <div className="p-6 sm:p-8 rounded-[28px] bg-[#161618] border border-white/[0.08] space-y-6 w-full">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/[0.08] pb-5">
+      {/* Official Academy Student Handbook (Full-Screen 4-Section Component) */}
+      <div className="p-6 md:p-8 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl space-y-6 w-full">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
           <div className="space-y-1">
-            <h2 className="text-lg sm:text-xl font-semibold text-[#f5f5f7] flex items-center gap-2.5">
-              <FileText className="w-5 h-5 text-[#0071e3]" />
+            <h2 className="text-lg sm:text-xl font-extrabold text-white flex items-center gap-2.5">
+              <FileText className="w-5 h-5 text-indigo-400" />
               Справочник Студента & Регламент Курса
             </h2>
-            <p className="text-xs text-[#86868b]">
+            <p className="text-xs text-slate-400">
               Официальный справочник правил, стандартов выполнения лабораторных работ и карьерного трека AI for LIFE Academy
             </p>
           </div>
 
           {/* 4 Handbook Tabs */}
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {HANDBOOK_SECTIONS.map((sec) => (
               <button
                 key={sec.id}
                 onClick={() => setActiveHandbookTab(sec.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-colors flex items-center gap-1.5 ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
                   activeHandbookTab === sec.id
-                    ? 'bg-[#0071e3] text-white font-semibold'
-                    : 'bg-white/[0.06] text-[#86868b] hover:text-[#f5f5f7]'
+                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                    : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 hover:text-white'
                 }`}
               >
                 <span>{sec.titleRu.split('.')[1] || sec.titleRu}</span>
@@ -378,26 +383,26 @@ export const FaqPage: React.FC = () => {
         </div>
 
         {/* Selected Handbook Section Content */}
-        <div className="p-5 rounded-2xl bg-[#1c1c1e] border border-white/[0.08] space-y-3">
-          <div className="flex items-center gap-2 text-sm font-semibold text-[#f5f5f7]">
-            <CheckCircle2 className="w-4 h-4 text-[#30d158]" />
+        <div className="p-6 rounded-2xl bg-slate-950/70 border border-slate-800/80 space-y-4">
+          <div className="flex items-center gap-2 text-sm font-bold text-indigo-300">
+            <CheckCircle2 className="w-4 h-4 text-indigo-400" />
             <span>{activeHandbook.titleRu}</span>
           </div>
-          <pre className="text-xs sm:text-sm text-[#86868b] whitespace-pre-line font-sans leading-relaxed">
+          <pre className="text-xs sm:text-sm text-slate-300 whitespace-pre-line font-sans leading-relaxed">
             {activeHandbook.contentRu}
           </pre>
         </div>
       </div>
 
       {/* Support & Mentor Telegram Contact Banner */}
-      <div className="p-6 rounded-[28px] bg-[#161618] border border-white/[0.08] flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+      <div className="p-6 rounded-3xl bg-gradient-to-r from-cyan-950/40 via-slate-900 to-indigo-950/40 border border-cyan-800/40 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-white/[0.06] border border-white/[0.08] text-[#0071e3] flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center shrink-0">
             <HelpCircle className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-[#f5f5f7]">Не нашли ответ на свой вопрос?</h4>
-            <p className="text-xs text-[#86868b] mt-0.5">
+            <h4 className="text-sm font-bold text-white">Не нашли ответ на свой вопрос?</h4>
+            <p className="text-xs text-slate-400 mt-0.5">
               Ментор и куратор учебной группы всегда готовы ответить на технические вопросы в Telegram или в чате консультаций.
             </p>
           </div>
@@ -408,10 +413,10 @@ export const FaqPage: React.FC = () => {
           href="https://t.me/aivioratj"
           target="_blank"
           rel="noreferrer"
-          className="px-5 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-[#f5f5f7] font-medium text-xs flex items-center gap-2 border border-white/[0.08] shrink-0 transition-colors active:scale-95"
+          className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center gap-2 border border-slate-700 shrink-0 transition-colors"
         >
           <span>Задать вопрос куратору</span>
-          <ExternalLink className="w-3.5 h-3.5 text-[#86868b]" />
+          <ExternalLink className="w-3.5 h-3.5 text-cyan-400" />
         </a>
       </div>
     </div>
