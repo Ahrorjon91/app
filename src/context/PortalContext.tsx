@@ -226,11 +226,11 @@ export interface PortalContextType {
 }
 
 const DEFAULT_PROFILE: StudentProfileData = {
-  id: 'USR-STU-01',
-  name: 'John Smith',
-  email: 'student@devopspro.tech',
-  phone: '+992 90 000 00 00',
-  telegram: '@student_devops',
+  id: '',
+  name: '',
+  email: '',
+  phone: '',
+  telegram: '',
   course: 'AI for LIFE — Vibe Coding & Agentic AI',
   startDate: '01.08.2026',
   graduationDate: '31.01.2027',
@@ -239,10 +239,10 @@ const DEFAULT_PROFILE: StudentProfileData = {
   rank: 1,
   attendancePct: 100,
   totalPoints: 0,
-  qrCodeValue: 'https://devopspro.tech/verify/USR-STU-01',
+  qrCodeValue: '',
   role: 'student',
   unlockedLessonsCount: 1,
-  isAuthenticated: true,
+  isAuthenticated: false,
   group: 'Группа 1 (Август 2026)',
   hiddenFromLeaderboard: false,
 };
@@ -307,8 +307,28 @@ const INITIAL_USER_ACCOUNTS: UserAccount[] = [
 const PortalContext = createContext<PortalContextType | undefined>(undefined);
 
 export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // 1. Navigation State
-  const [activePage, setActivePage] = useState<PageView>('dashboard');
+  // 1. Navigation State: Defaults to 'login' for new visitors and unauthenticated users
+  const [activePage, setActivePage] = useState<PageView>(() => {
+    try {
+      const saved = localStorage.getItem('devops_auth_profile');
+      const token = localStorage.getItem('devops_auth_token');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (
+          parsed &&
+          typeof parsed === 'object' &&
+          parsed.isAuthenticated === true &&
+          parsed.email &&
+          (token || parsed.token || parsed.sessionToken)
+        ) {
+          const savedPage = localStorage.getItem('devops_active_page');
+          if (savedPage && savedPage !== 'login') return savedPage as PageView;
+          return 'dashboard';
+        }
+      }
+    } catch {}
+    return 'login';
+  });
   const [selectedLessonId, setSelectedLessonId] = useState<number>(1);
   const [selectedLabId, setSelectedLabId] = useState<number>(1);
   const [selectedQuizId, setSelectedQuizId] = useState<string>('TEST_1');
@@ -319,18 +339,25 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isSyllabusModalOpen, setIsSyllabusModalOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>('lessons');
 
-  // 2. Profile & Auth State
+  // 2. Profile & Auth State: Strictly unauthenticated by default
   const [profile, setProfile] = useState<StudentProfileData>(() => {
     try {
       const saved = localStorage.getItem('devops_auth_profile');
+      const token = localStorage.getItem('devops_auth_token');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === 'object') {
+        if (
+          parsed &&
+          typeof parsed === 'object' &&
+          parsed.isAuthenticated === true &&
+          parsed.email &&
+          (token || parsed.token || parsed.sessionToken)
+        ) {
           return {
             ...DEFAULT_PROFILE,
             ...parsed,
             avatarUrl: parsed.avatarUrl || studentAvatarSvg,
-            isAuthenticated: parsed.isAuthenticated !== undefined ? Boolean(parsed.isAuthenticated) : true,
+            isAuthenticated: true,
           };
         }
       }
@@ -545,12 +572,26 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return unsub;
   }, []);
 
-  // Save changes to localStorage
+  // Save changes to localStorage only if genuinely authenticated
   useEffect(() => {
     try {
-      localStorage.setItem('devops_auth_profile', JSON.stringify(profile));
+      if (profile.isAuthenticated && profile.email) {
+        localStorage.setItem('devops_auth_profile', JSON.stringify(profile));
+      } else {
+        localStorage.removeItem('devops_auth_profile');
+        localStorage.removeItem('devops_auth_token');
+      }
     } catch {}
   }, [profile]);
+
+  // Persist current active view when authenticated
+  useEffect(() => {
+    try {
+      if (profile.isAuthenticated && activePage !== 'login') {
+        localStorage.setItem('devops_active_page', activePage);
+      }
+    } catch {}
+  }, [activePage, profile.isAuthenticated]);
 
   useEffect(() => {
     try {
@@ -2616,12 +2657,12 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       localStorage.removeItem('devops_auth_token');
       localStorage.removeItem('devops_auth_profile');
-      api.logout(profile.email).catch(() => {});
+      localStorage.removeItem('devops_active_page');
+      if (profile.email) {
+        api.logout(profile.email).catch(() => {});
+      }
     } catch {}
-    setProfile((prev) => ({
-      ...prev,
-      isAuthenticated: false,
-    }));
+    setProfile(DEFAULT_PROFILE);
     setActivePage('login');
   }, [profile.email]);
 
