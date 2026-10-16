@@ -34,6 +34,7 @@ export interface StudentProfileData {
   phone: string;
   telegram: string;
   course: string;
+  courseId?: 'ai-for-life' | 'sysadmin-devops' | string;
   startDate: string;
   graduationDate: string;
   mentorName: string;
@@ -209,6 +210,8 @@ export interface UserAccount {
   attendancePct: number;
   status: 'Active' | 'Blocked' | 'Pending';
   group?: string;
+  course?: string;
+  courseId?: string;
   hiddenFromLeaderboard?: boolean;
   avatarUrl?: string;
   mentorAvatarUrl?: string;

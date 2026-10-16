@@ -31,10 +31,11 @@ export const LessonDetailPage: React.FC = () => {
     setIsXpModalOpen,
     xpBreakdown,
     homeworkSubmissions,
+    courseBlocks,
   } = usePortal();
 
   const lesson = lessons.find((l) => l.id === selectedLessonId) || lessons[0];
-  const block = COURSE_BLOCKS.find((b) => b.id === lesson.blockId);
+  const block = (courseBlocks || COURSE_BLOCKS).find((b) => b.id === lesson.blockId);
   const unlocked = isLessonUnlocked(lesson.id);
 
   const currentEmail = (profile.email || '').toLowerCase().trim();

@@ -90,7 +90,10 @@ export const DashboardPage: React.FC = () => {
     setSelectedLabId,
     setSelectedQuizId,
     setIsXpModalOpen,
-    setIsSyllabusModalOpen
+    setIsSyllabusModalOpen,
+    currentCourseId,
+    currentCourse,
+    courseBlocks
   } = usePortal();
 
   // Find next uncompleted lesson and lab
@@ -165,7 +168,7 @@ export const DashboardPage: React.FC = () => {
   };
 
   // Block progress items calculation
-  const blockProgressItems = COURSE_BLOCKS.map((block) => {
+  const blockProgressItems = (courseBlocks || COURSE_BLOCKS).map((block) => {
     const blockLessons = lessons.filter((l) => l.blockId === block.id);
     const completedCount = blockLessons.filter((l) => l.isCompleted).length;
     const totalCount = blockLessons.length || 4;
@@ -196,16 +199,20 @@ export const DashboardPage: React.FC = () => {
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-400/30 text-xs font-mono font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-              <span>AI for LIFE • Академия Вайб-Кодинга и ИИ-Агентов</span>
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-mono font-semibold ${
+              currentCourseId === 'sysadmin-devops'
+                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-400/30'
+                : 'bg-cyan-500/10 text-cyan-300 border-cyan-400/30'
+            }`}>
+              <Sparkles className={`w-3.5 h-3.5 ${currentCourseId === 'sysadmin-devops' ? 'text-emerald-400' : 'text-cyan-400'} animate-pulse`} />
+              <span>{currentCourse.title}</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
               С возвращением, <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">{profile.name}</span> 👋
             </h1>
             <p className="text-slate-300 text-xs md:text-sm max-w-2xl leading-relaxed">
               <TypewriterText
-                text={`Вы успешно завершили ${stats.completedLessonsCount} из 24 практических занятий программы AI for LIFE: Vibe Coding. ${
+                text={`Вы успешно завершили ${stats.completedLessonsCount} из 24 практических занятий программы ${currentCourse.shortName}. ${
                   isAllLessonsCompleted
                     ? 'Поздравляем! Вы прошли все материалы программы.'
                     : `Рекомендуем продолжить Урок #${nextLesson.id}: «${nextLesson.titleRu || nextLesson.title}».`

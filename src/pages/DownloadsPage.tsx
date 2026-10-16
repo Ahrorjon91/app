@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { INITIAL_DOWNLOADS } from '../data/syllabusData';
+import { SYSADMIN_DOWNLOADS } from '../data/sysadminCourseData';
 import { ResourceDownload } from '../types';
 import {
   Download,
@@ -31,15 +32,22 @@ const DEFAULT_REAL_URLS: Record<string, string> = {
 };
 
 export const DownloadsPage: React.FC = () => {
-  const { profile } = usePortal();
+  const { profile, currentCourseId, currentCourse } = usePortal();
   const isAdmin = profile?.role === 'admin';
 
-  const [downloads, setDownloads] = useState<ResourceDownload[]>(() =>
-    INITIAL_DOWNLOADS.map((d) => ({
+  const getBaseDownloads = useCallback(() => {
+    const list = currentCourseId === 'sysadmin-devops' ? SYSADMIN_DOWNLOADS : INITIAL_DOWNLOADS;
+    return list.map((d) => ({
       ...d,
       downloadUrl: DEFAULT_REAL_URLS[d.id] || d.downloadUrl,
-    }))
-  );
+    }));
+  }, [currentCourseId]);
+
+  const [downloads, setDownloads] = useState<ResourceDownload[]>(getBaseDownloads);
+
+  useEffect(() => {
+    setDownloads(getBaseDownloads());
+  }, [getBaseDownloads]);
 
   const [loading, setLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -229,10 +237,13 @@ export const DownloadsPage: React.FC = () => {
       <div className="p-6 md:p-8 rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
         <div className="space-y-2">
           <h1 className="text-2xl font-extrabold text-white flex items-center gap-2.5">
-            <Download className="w-6 h-6 text-cyan-400" /> Центр Загрузок и Инструментов (Download Center)
+            <Download className={`w-6 h-6 ${currentCourseId === 'sysadmin-devops' ? 'text-emerald-400' : 'text-cyan-400'}`} />
+            Центр Загрузок: {currentCourse.shortName}
           </h1>
           <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
-            Дистрибутивы ISO, Cisco Packet Tracer, скрипты PowerShell/Bash, методички и файлы для практических занятий.
+            {currentCourseId === 'sysadmin-devops'
+              ? 'Дистрибутивы Ubuntu/Rocky Linux ISO, Termius, PuTTY, конфигурации Nginx, Docker Compose и шаблоны мониторинга.'
+              : 'Инструменты разработки Cursor, Windsurf, Node.js, скрипты, методички и файлы для практических занятий.'}
           </p>
         </div>
 

@@ -46,6 +46,8 @@ export const QuizzesPage: React.FC = () => {
     labs,
     homeworkSubmissions,
     readSections,
+    currentCourse,
+    currentCourseId
   } = usePortal();
 
   const [activeTab, setActiveTab] = useState<'block_tests' | 'lesson_quizzes'>('block_tests');
@@ -136,7 +138,7 @@ export const QuizzesPage: React.FC = () => {
             <Rocket className="w-6 h-6 text-purple-400" /> Проекты Блоков, Тесты & Экзамен
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            6 практических проектов по блокам программы, экспресс-тесты к 24 урокам и Финальный Экзамен курса AI for LIFE: Vibe Coding & Agentic AI
+            6 практических проектов по блокам программы, экспресс-тесты к 24 урокам и Финальный Экзамен курса {currentCourse.title}
           </p>
         </div>
 

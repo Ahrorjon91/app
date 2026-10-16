@@ -34,6 +34,9 @@ import {
 export const LessonsPage: React.FC = () => {
   const {
     lessons: contextLessons,
+    courseBlocks,
+    currentCourseId,
+    currentCourse,
     setSelectedLessonId,
     setActivePage,
     toggleLessonCompletion,
@@ -168,25 +171,30 @@ export const LessonsPage: React.FC = () => {
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="space-y-2.5 max-w-2xl">
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="px-2.5 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-800/60 text-cyan-300 font-mono font-bold">
-                AI for LIFE Academy
+              <span className={`px-2.5 py-0.5 rounded-full font-mono font-bold border ${
+                currentCourseId === 'sysadmin-devops'
+                  ? 'bg-emerald-950/80 border-emerald-800/60 text-emerald-300'
+                  : 'bg-cyan-950/80 border-cyan-800/60 text-cyan-300'
+              }`}>
+                {currentCourse.shortName}
               </span>
               <span className="text-slate-500">•</span>
-              <span className="text-purple-300 font-semibold">Vibe Coding & Agentic AI</span>
+              <span className={currentCourseId === 'sysadmin-devops' ? 'text-emerald-300 font-semibold' : 'text-purple-300 font-semibold'}>
+                {currentCourse.tagline}
+              </span>
               <span className="text-slate-500">•</span>
               <span className="text-slate-400 font-mono">24 Инженерных Урока</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight flex items-center gap-3">
-              <span className="p-2 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20">
+              <span className={`p-2 rounded-2xl bg-gradient-to-br ${currentCourse.colorScheme.gradient} text-white shadow-lg`}>
                 <BookOpen className="w-6 h-6 sm:w-7 sm:h-7" />
               </span>
               <span>Программа Уроков Курса</span>
             </h1>
 
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-xl">
-              Практический маршрут от промпт-инжиниринга и генеративного контента до Cursor IDE,
-              полноценных веб-приложений, n8n-автоматизаций и защиты выпускного Capstone-продукта на Demo Day.
+              {currentCourse.description}
             </p>
 
             {/* Quick Continue Lesson Bar */}
@@ -460,7 +468,7 @@ export const LessonsPage: React.FC = () => {
           >
             Все 6 Блоков (24)
           </button>
-          {COURSE_BLOCKS.map((block) => {
+          {(courseBlocks || COURSE_BLOCKS).map((block: any) => {
             const isSelected = selectedBlockId === block.id;
             const bStyle = getBlockStyle(block.id);
             return (
@@ -488,7 +496,7 @@ export const LessonsPage: React.FC = () => {
       {viewMode === 'by_blocks' && selectedBlockId === 'all' ? (
         /* Grouped by 6 Blocks */
         <div className="space-y-10">
-          {COURSE_BLOCKS.map((block) => {
+          {(courseBlocks || COURSE_BLOCKS).map((block: any) => {
             const blockLessons = filteredLessons.filter((l: any) => l.blockId === block.id);
             if (blockLessons.length === 0) return null;
 

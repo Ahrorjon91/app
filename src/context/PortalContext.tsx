@@ -16,10 +16,18 @@ import {
   AttachedReportFile,
 } from '../types';
 import {
+  COURSE_BLOCKS,
   INITIAL_LESSONS,
   INITIAL_LABS,
   INITIAL_BADGES,
 } from '../data/syllabusData';
+import { CourseId, CourseConfig, AVAILABLE_COURSES, getCourseConfig } from '../data/coursesConfig';
+import {
+  SYSADMIN_COURSE_BLOCKS,
+  SYSADMIN_LESSONS,
+  SYSADMIN_LABS,
+  SYSADMIN_DOWNLOADS,
+} from '../data/sysadminCourseData';
 import {
   INITIAL_HOMEWORK_SUBMISSIONS,
   INITIAL_LAB_SUBMISSIONS,
@@ -74,6 +82,13 @@ export interface PortalContextType {
   isSyllabusModalOpen: boolean;
   setIsSyllabusModalOpen: (open: boolean) => void;
   xpBreakdown: XpBreakdown;
+
+  // Multi-Course Architecture (AI for Life + Linux SysAdmin in one app)
+  currentCourseId: CourseId;
+  setCurrentCourseId: (courseId: CourseId) => void;
+  courses: CourseConfig[];
+  currentCourse: CourseConfig;
+  courseBlocks: CourseBlock[];
 
   // Profile & Authentication
   profile: StudentProfileData;
@@ -307,6 +322,37 @@ const INITIAL_USER_ACCOUNTS: UserAccount[] = [
 const PortalContext = createContext<PortalContextType | undefined>(undefined);
 
 export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // 0. Course State (AI for Life vs Linux & DevOps SysAdmin)
+  const [currentCourseId, setCurrentCourseId] = useState<CourseId>(() => {
+    try {
+      const savedCourse = localStorage.getItem('devops_selected_course') as CourseId;
+      if (savedCourse === 'sysadmin-devops' || savedCourse === 'ai-for-life') {
+        return savedCourse;
+      }
+      const savedAuth = localStorage.getItem('devops_auth_profile');
+      if (savedAuth) {
+        const parsed = JSON.parse(savedAuth);
+        if (parsed.courseId === 'sysadmin-devops' || (parsed.course && parsed.course.toLowerCase().includes('linux'))) {
+          return 'sysadmin-devops';
+        }
+      }
+    } catch {}
+    return 'ai-for-life';
+  });
+
+  const currentCourse = useMemo(() => getCourseConfig(currentCourseId), [currentCourseId]);
+  const courseBlocks = useMemo(() => {
+    return currentCourseId === 'sysadmin-devops' ? SYSADMIN_COURSE_BLOCKS : COURSE_BLOCKS;
+  }, [currentCourseId]);
+
+  const activeBaseLessons = useMemo(() => {
+    return currentCourseId === 'sysadmin-devops' ? SYSADMIN_LESSONS : INITIAL_LESSONS;
+  }, [currentCourseId]);
+
+  const activeBaseLabs = useMemo(() => {
+    return currentCourseId === 'sysadmin-devops' ? SYSADMIN_LABS : INITIAL_LABS;
+  }, [currentCourseId]);
+
   // 1. Navigation State: Defaults to 'login' for new visitors and unauthenticated users
   const [activePage, setActivePage] = useState<PageView>(() => {
     try {
@@ -356,13 +402,19 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           return {
             ...DEFAULT_PROFILE,
             ...parsed,
+            course: parsed.course || currentCourse.title,
+            courseId: parsed.courseId || currentCourseId,
             avatarUrl: parsed.avatarUrl || studentAvatarSvg,
             isAuthenticated: true,
           };
         }
       }
     } catch {}
-    return DEFAULT_PROFILE;
+    return {
+      ...DEFAULT_PROFILE,
+      course: currentCourse.title,
+      courseId: currentCourseId,
+    };
   });
 
   // 3. User Accounts
@@ -377,14 +429,18 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return INITIAL_USER_ACCOUNTS;
   });
 
-  // 4. Lessons & Labs Data
+  // 4. Lessons & Labs Data (Course-Aware)
   const [lessons, setLessons] = useState<LessonData[]>(() => {
     try {
-      const saved = localStorage.getItem('devops_lessons');
+      const savedCourse = localStorage.getItem('devops_selected_course');
+      const isSysadmin = savedCourse === 'sysadmin-devops';
+      const base = isSysadmin ? SYSADMIN_LESSONS : INITIAL_LESSONS;
+      const key = isSysadmin ? 'devops_lessons_sysadmin-devops' : 'devops_lessons';
+      const saved = localStorage.getItem(key);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return INITIAL_LESSONS.map((initLesson) => {
+          return base.map((initLesson) => {
             const cached = parsed.find((p: any) => Number(p.id) === initLesson.id);
             if (!cached) return initLesson;
             return {
@@ -396,6 +452,7 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           });
         }
       }
+      return base;
     } catch {}
     return INITIAL_LESSONS;
   });
@@ -405,13 +462,17 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const savedAuth = localStorage.getItem('devops_auth_profile');
       const authObj = savedAuth ? JSON.parse(savedAuth) : null;
       if (authObj?.role === 'admin') {
-        return INITIAL_LABS;
+        return activeBaseLabs;
       }
-      const saved = localStorage.getItem('devops_labs');
+      const savedCourse = localStorage.getItem('devops_selected_course');
+      const isSysadmin = savedCourse === 'sysadmin-devops';
+      const base = isSysadmin ? SYSADMIN_LABS : INITIAL_LABS;
+      const key = isSysadmin ? 'devops_labs_sysadmin-devops' : 'devops_labs';
+      const saved = localStorage.getItem(key);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          return INITIAL_LABS.map((initLab) => {
+          return base.map((initLab) => {
             const cached = parsed.find((p: any) => Number(p.id) === initLab.id);
             if (!cached) return initLab;
             return {
@@ -427,9 +488,76 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           });
         }
       }
+      return base;
     } catch {}
     return INITIAL_LABS;
   });
+
+  // Switch lessons and labs when changing active course
+  useEffect(() => {
+    try {
+      const storageKey = `devops_lessons_${currentCourseId}`;
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setLessons(
+            activeBaseLessons.map((initLesson) => {
+              const cached = parsed.find((p: any) => Number(p.id) === initLesson.id);
+              if (!cached) return initLesson;
+              return {
+                ...initLesson,
+                isCompleted: Boolean(cached.isCompleted),
+                submissionStatus: cached.submissionStatus || initLesson.submissionStatus,
+                completedAt: cached.completedAt || initLesson.completedAt,
+              };
+            })
+          );
+          return;
+        }
+      }
+    } catch {}
+    setLessons(activeBaseLessons);
+  }, [currentCourseId, activeBaseLessons]);
+
+  useEffect(() => {
+    try {
+      const storageKey = `devops_labs_${currentCourseId}`;
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setLabs(
+            activeBaseLabs.map((initLab) => {
+              const cached = parsed.find((p: any) => Number(p.id) === initLab.id);
+              if (!cached) return initLab;
+              return {
+                ...initLab,
+                isCompleted: Boolean(cached.isCompleted),
+                submissionStatus: cached.submissionStatus || initLab.submissionStatus,
+                score: cached.score !== undefined ? cached.score : initLab.score,
+                mentorFeedback: cached.mentorFeedback || initLab.mentorFeedback,
+              };
+            })
+          );
+          return;
+        }
+      }
+    } catch {}
+    setLabs(activeBaseLabs);
+  }, [currentCourseId, activeBaseLabs]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(`devops_lessons_${currentCourseId}`, JSON.stringify(lessons));
+    } catch {}
+  }, [lessons, currentCourseId]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(`devops_labs_${currentCourseId}`, JSON.stringify(labs));
+    } catch {}
+  }, [labs, currentCourseId]);
 
   // 5. Unlocked lessons: only Lesson 1 unlocked for student by default; next lessons unlock strictly after Mentor HW confirmation
   const [unlockedLessonIds, setUnlockedLessonIds] = useState<number[]>(() => {
@@ -2637,21 +2765,62 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [profile.id]
   );
 
-  const loginStudent = useCallback((userData: any) => {
-    const newProfile: StudentProfileData = {
-      ...DEFAULT_PROFILE,
-      ...userData,
-      isAuthenticated: true,
-    };
-    setProfile(newProfile);
-    if (newProfile.role === 'admin') {
-      setUnlockedLessonIds(Array.from({ length: 24 }, (_, i) => i + 1));
-    } else {
-      const count = Math.max(1, Math.min(24, Number(userData.unlockedLessonsCount) || 1));
-      setUnlockedLessonIds(Array.from({ length: count }, (_, i) => i + 1));
-    }
-    setActivePage('dashboard');
-  }, []);
+  const switchCourse = useCallback(
+    (newCourseId: CourseId) => {
+      setCurrentCourseId(newCourseId);
+      const courseCfg = getCourseConfig(newCourseId);
+      setProfile((prev) => ({
+        ...prev,
+        course: courseCfg.title,
+        courseId: newCourseId,
+      }));
+      try {
+        localStorage.setItem('devops_selected_course', newCourseId);
+      } catch {}
+      addNotification(`Выбран курс: ${courseCfg.title}`, 'info');
+    },
+    [addNotification]
+  );
+
+  const loginStudent = useCallback(
+    (userData: any) => {
+      let targetCourseId: CourseId = 'ai-for-life';
+      if (
+        userData.courseId === 'sysadmin-devops' ||
+        (userData.course && String(userData.course).toLowerCase().includes('linux')) ||
+        (userData.course && String(userData.course).toLowerCase().includes('sysadmin'))
+      ) {
+        targetCourseId = 'sysadmin-devops';
+      } else if (userData.courseId === 'ai-for-life') {
+        targetCourseId = 'ai-for-life';
+      } else if (currentCourseId) {
+        targetCourseId = currentCourseId;
+      }
+
+      setCurrentCourseId(targetCourseId);
+      try {
+        localStorage.setItem('devops_selected_course', targetCourseId);
+      } catch {}
+
+      const courseCfg = getCourseConfig(targetCourseId);
+      const newProfile: StudentProfileData = {
+        ...DEFAULT_PROFILE,
+        ...userData,
+        course: userData.course || courseCfg.title,
+        courseId: targetCourseId,
+        isAuthenticated: true,
+      };
+      setProfile(newProfile);
+      if (newProfile.role === 'admin') {
+        setUnlockedLessonIds(Array.from({ length: 24 }, (_, i) => i + 1));
+      } else {
+        const count = Math.max(1, Math.min(24, Number(userData.unlockedLessonsCount) || 1));
+        setUnlockedLessonIds(Array.from({ length: count }, (_, i) => i + 1));
+      }
+      setActivePage('dashboard');
+    },
+    [currentCourseId]
+  );
 
   const logoutStudent = useCallback(() => {
     try {
@@ -2857,6 +3026,12 @@ export const PortalProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     isSyllabusModalOpen,
     setIsSyllabusModalOpen,
     xpBreakdown,
+
+    currentCourseId,
+    setCurrentCourseId: switchCourse,
+    courses: AVAILABLE_COURSES,
+    currentCourse,
+    courseBlocks,
 
     profile,
     updateProfile,

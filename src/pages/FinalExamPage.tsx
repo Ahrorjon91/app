@@ -37,7 +37,9 @@ export const FinalExamPage: React.FC = () => {
     quizSubmissions,
     canRetakeQuiz,
     recordQuizRetake,
-    profile
+    profile,
+    currentCourseId,
+    currentCourse
   } = usePortal() as any;
 
   const unlocked = isQuizUnlocked('FINAL_EXAM');
@@ -219,14 +221,11 @@ export const FinalExamPage: React.FC = () => {
         </div>
 
         <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-          Финальный Комплексный Экзамен: AI for LIFE Master (60 Вопросов)
+          Финальный Комплексный Экзамен: {currentCourse.shortName} Master (60 Вопросов)
         </h1>
         <p className="text-slate-300 text-xs md:text-sm leading-relaxed max-w-4xl">
           Итоговая аттестация охватывает <strong className="text-white">все 24 урока</strong> программы курса{' '}
-          <span className="text-cyan-300 font-semibold">AI for LIFE: Vibe Coding & Agentic AI</span>: от фундаментальных основ LLM,
-          мастерства промптинга (RTFC, Few-Shot, CoT) и креативного медиа-ИИ до вайб-кодинга в Cursor и Google AI Studio Build,
-          scrollytelling-лендингов, веб-анимаций, интеграции n8n и Telegram-ботов, безопасности секретных API-ключей (.env, серверный прокси),
-          деплоя на Vercel и публичной защиты Capstone-проекта на Demo Day.
+          <span className={`${currentCourse.colorScheme.text} font-semibold`}>{currentCourse.title}</span>.
         </p>
 
         <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-slate-300">

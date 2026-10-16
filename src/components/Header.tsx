@@ -22,13 +22,25 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onMobileToggle }) => {
-  const { profile, activePage, setActivePage, logoutStudent, selectedLessonId } = usePortal();
+  const {
+    profile,
+    activePage,
+    setActivePage,
+    logoutStudent,
+    selectedLessonId,
+    currentCourseId,
+    setCurrentCourseId,
+    courses,
+    currentCourse
+  } = usePortal();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [courseDropdownOpen, setCourseDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const notificationsDropdownRef = useRef<HTMLDivElement>(null);
+  const courseDropdownRef = useRef<HTMLDivElement>(null);
 
   // Auto-hide dropdowns when clicking outside or selecting other functions
   useEffect(() => {
@@ -44,6 +56,12 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onMobileToggle 
         !notificationsDropdownRef.current.contains(event.target as Node)
       ) {
         setNotificationsOpen(false);
+      }
+      if (
+        courseDropdownRef.current &&
+        !courseDropdownRef.current.contains(event.target as Node)
+      ) {
+        setCourseDropdownOpen(false);
       }
     };
 
@@ -86,7 +104,9 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onMobileToggle 
 
         {/* Current Location Breadcrumb */}
         <div className="hidden md:flex items-center gap-1.5 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 shrink min-w-0">
-          <span className="text-cyan-500 dark:text-cyan-400 font-bold uppercase tracking-wider text-[11px] shrink-0">AI for LIFE</span>
+          <span className={`font-bold uppercase tracking-wider text-[11px] shrink-0 ${currentCourseId === 'sysadmin-devops' ? 'text-emerald-400' : 'text-cyan-400'}`}>
+            {currentCourse.shortName}
+          </span>
           <span className="text-slate-300 dark:text-slate-600">/</span>
           <span className="text-slate-800 dark:text-slate-100 font-semibold capitalize truncate max-w-[120px]">{activePage.replace('-', ' ')}</span>
         </div>
@@ -98,7 +118,7 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onMobileToggle 
           <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
-            placeholder="Поиск (AI, Vibe Coding, LLM)..."
+            placeholder="Поиск (AI, Vibe Coding, Linux, Docker)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -113,12 +133,86 @@ export const Header: React.FC<HeaderProps> = ({ onToggleSidebar, onMobileToggle 
 
       {/* Right Controls (all shrink-0 and compact) */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+        {/* Course Switcher Pill */}
+        <div className="relative shrink-0" ref={courseDropdownRef}>
+          <button
+            type="button"
+            onClick={() => setCourseDropdownOpen(!courseDropdownOpen)}
+            className={`px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+              currentCourseId === 'sysadmin-devops'
+                ? 'bg-emerald-950/50 text-emerald-300 border-emerald-700/70 hover:border-emerald-500 shadow-sm shadow-emerald-900/20'
+                : 'bg-cyan-950/50 text-cyan-300 border-cyan-700/70 hover:border-cyan-500 shadow-sm shadow-cyan-900/20'
+            }`}
+            title="Переключить курс / Switch Course"
+          >
+            {currentCourseId === 'sysadmin-devops' ? (
+              <Terminal className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+            )}
+            <span className="hidden sm:inline font-semibold text-[11px] sm:text-xs">{currentCourse.shortName}</span>
+            <ChevronDown className="w-3 h-3 opacity-70 shrink-0" />
+          </button>
+
+          {courseDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-72 bg-[#14141B] border border-white/10 rounded-2xl shadow-2xl py-2 z-50 animate-in fade-in slide-in-from-top-2">
+              <div className="px-3.5 py-1.5 border-b border-white/5 flex items-center justify-between">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Смена направления</span>
+                <span className="text-[10px] font-mono text-cyan-400">1 VPS • 2 курса</span>
+              </div>
+              <div className="p-1.5 space-y-1">
+                {courses.map((c) => {
+                  const isSelected = c.id === currentCourseId;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => {
+                        setCurrentCourseId(c.id);
+                        setCourseDropdownOpen(false);
+                      }}
+                      className={`w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between gap-2 cursor-pointer ${
+                        isSelected
+                          ? c.id === 'sysadmin-devops'
+                            ? 'bg-emerald-950/50 border border-emerald-500/40 text-emerald-200 ring-1 ring-emerald-500/30'
+                            : 'bg-cyan-950/50 border border-cyan-500/40 text-cyan-200 ring-1 ring-cyan-500/30'
+                          : 'hover:bg-white/5 text-slate-300 border border-transparent'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0 ${
+                          c.id === 'sysadmin-devops' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-cyan-500/20 text-cyan-300'
+                        }`}>
+                          {c.id === 'sysadmin-devops' ? '🐧' : '🧠'}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold leading-tight">{c.shortName}</div>
+                          <div className="text-[10px] text-slate-400 leading-tight">{c.tagline}</div>
+                        </div>
+                      </div>
+                      {isSelected && (
+                        <CheckCircle2 className={`w-4 h-4 shrink-0 ${
+                          c.id === 'sysadmin-devops' ? 'text-emerald-400' : 'text-cyan-400'
+                        }`} />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Quick Launch: Quick Jump to Current Lesson (fits compactly in one line) */}
         <button
           onClick={() => setActivePage(activePage === 'lesson-detail' ? 'lessons' : 'lesson-detail')}
           className={`shrink-0 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 sm:gap-1.5 transition-all border ${
             activePage === 'lesson-detail'
-              ? 'bg-cyan-600 text-white border-cyan-400 shadow-sm shadow-cyan-600/30'
+              ? currentCourseId === 'sysadmin-devops'
+                ? 'bg-emerald-600 text-white border-emerald-400 shadow-sm shadow-emerald-600/30'
+                : 'bg-cyan-600 text-white border-cyan-400 shadow-sm shadow-cyan-600/30'
+              : currentCourseId === 'sysadmin-devops'
+              ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/80 hover:border-emerald-500 hover:bg-emerald-900/40'
               : 'bg-cyan-950/40 text-cyan-300 border-cyan-800/80 hover:border-cyan-500 hover:bg-cyan-900/40'
           }`}
           title="Быстрый переход к текущему занятию в 1 клик"

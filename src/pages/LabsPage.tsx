@@ -14,9 +14,10 @@ import {
 } from 'lucide-react';
 
 export const LabsPage: React.FC = () => {
-  const { labs, setSelectedLabId, setActivePage, isLabUnlocked, profile } = usePortal();
+  const { labs, setSelectedLabId, setActivePage, isLabUnlocked, profile, courseBlocks, currentCourse, currentCourseId } = usePortal();
   const [selectedBlockId, setSelectedBlockId] = useState<number | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const activeBlocks = courseBlocks || COURSE_BLOCKS;
 
   const filteredLabs = labs.filter((lab) => {
     const matchesBlock = selectedBlockId === 'all' || lab.blockId === selectedBlockId;
@@ -61,7 +62,7 @@ export const LabsPage: React.FC = () => {
           className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs font-bold text-white focus:outline-none focus:border-emerald-500 shadow-sm"
         >
           <option value="all">Все 24 Лабы (Все 6 Блоков)</option>
-          {COURSE_BLOCKS.map((block) => (
+          {activeBlocks.map((block) => (
             <option key={block.id} value={block.id}>
               {block.titleRu.split('(')[0].trim()}
             </option>
@@ -81,7 +82,7 @@ export const LabsPage: React.FC = () => {
         >
           Все 24 Лабы
         </button>
-        {COURSE_BLOCKS.map((block) => (
+        {activeBlocks.map((block) => (
           <button
             key={block.id}
             onClick={() => setSelectedBlockId(block.id)}

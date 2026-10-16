@@ -39,7 +39,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onMobil
     profile,
     testScores,
     quizSubmissions,
-    certificates
+    certificates,
+    currentCourseId,
+    currentCourse
   } = usePortal();
 
   const isAdmin = profile.role === 'admin';
@@ -117,13 +119,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, mobileOpen, onMobil
         {/* Brand Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-slate-200 dark:border-white/5">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-black text-base shadow-lg shadow-cyan-500/25 shrink-0">
-              AI
+            <div className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br ${currentCourse.colorScheme.gradient} text-white font-black text-base shadow-lg shrink-0`}>
+              {currentCourseId === 'sysadmin-devops' ? 'SA' : 'AI'}
             </div>
             {!collapsed && (
               <div className="flex flex-col">
-                <span className="font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">AI FOR <span className="text-cyan-500">LIFE</span></span>
-                <span className="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold uppercase tracking-wider">Vibe Coding & Agents</span>
+                <span className="font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
+                  {currentCourseId === 'sysadmin-devops' ? (
+                    <>LINUX & <span className="text-emerald-500">SYSADMIN</span></>
+                  ) : (
+                    <>AI FOR <span className="text-cyan-500">LIFE</span></>
+                  )}
+                </span>
+                <span className={`text-[10px] font-semibold uppercase tracking-wider ${currentCourse.colorScheme.text}`}>
+                  {currentCourse.tagline}
+                </span>
               </div>
             )}
           </div>
